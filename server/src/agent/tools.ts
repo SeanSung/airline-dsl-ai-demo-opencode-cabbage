@@ -4,7 +4,7 @@ import { DEFAULT_COUNT, type AirlineContent, type Intent } from '@airline-dsl/sh
 import { intentSchema, validateIntentParams, mergeIntent, applyDefaults } from '../intent/index.js'
 import { orbitWaypoints } from '../geometry/orbit.js'
 import { buildAirlineContent, validateAirlineContent, type ValidationLimits } from '../airline/index.js'
-import type { RouteRepository } from '../store/index.js'
+import type { Route, RouteRepository } from '../store/index.js'
 import { AirlineValidationError, MissingIntentParamsError } from './errors.js'
 
 export const GENERATE_ROUTE_TOOL = 'generate_route'
@@ -18,6 +18,33 @@ export interface GenerateRouteDetails {
 export interface GenerateRouteToolOptions {
   store: RouteRepository
   limits?: ValidationLimits
+}
+
+export interface CreateRouteFromIntentOptions {
+  store: RouteRepository
+  limits?: ValidationLimits
+  aiGenerated: boolean
+}
+
+export function createRouteFromIntent(
+  intent: Intent,
+  options: CreateRouteFromIntentOptions,
+): { route: Route; content: AirlineContent } {
+  const content = buildAirlineContent(intent, (it) =>
+    orbitWaypoints({ center: it.center, radiusM: it.radiusM, count: it.count ?? DEFAULT_COUNT }),
+  )
+  const airlineResult = validateAirlineContent(content, options.limits)
+  if (!airlineResult.ok) {
+    throw new AirlineValidationError(airlineResult.errors)
+  }
+  const route = options.store.create({
+    name: content.name,
+    intent,
+    content,
+    aiGenerated: options.aiGenerated,
+    status: 'draft',
+  })
+  return { route, content }
 }
 
 function partialObject(schema: TObject): TObject {
@@ -46,19 +73,10 @@ export function createGenerateRouteTool(options: GenerateRouteToolOptions): Agen
         throw new MissingIntentParamsError(validation.missing)
       }
       const intent = applyDefaults(merged as Intent)
-      const content = buildAirlineContent(intent, (it) =>
-        orbitWaypoints({ center: it.center, radiusM: it.radiusM, count: it.count ?? DEFAULT_COUNT }),
-      )
-      const airlineResult = validateAirlineContent(content, options.limits)
-      if (!airlineResult.ok) {
-        throw new AirlineValidationError(airlineResult.errors)
-      }
-      const route = options.store.create({
-        name: content.name,
-        intent,
-        content,
+      const { route, content } = createRouteFromIntent(intent, {
+        store: options.store,
+        limits: options.limits,
         aiGenerated: true,
-        status: 'draft',
       })
       draft = {}
       return {

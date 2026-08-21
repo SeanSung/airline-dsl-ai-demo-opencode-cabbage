@@ -33,6 +33,8 @@ function setupAgent(store: RouteRepository) {
     streamFn: llm.streamFn,
     tools: [],
     createRouteTool: () => createGenerateRouteTool({ store }),
+    store,
+    llmFallbackEnabled: true,
   })
   return { llm, manager }
 }
