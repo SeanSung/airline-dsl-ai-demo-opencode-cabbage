@@ -1,8 +1,11 @@
 import type { Api, Model } from '@earendil-works/pi-ai'
 import { Agent, uuidv7 } from '@earendil-works/pi-agent-core'
 import type { AgentEvent, AgentMessage, AgentTool, StreamFn, ThinkingLevel } from '@earendil-works/pi-agent-core'
-import type { AgentEvent as SharedAgentEvent, AirlineContent } from '@airline-dsl/shared'
-import { GENERATE_ROUTE_TOOL } from './tools.js'
+import type { AgentEvent as SharedAgentEvent, AirlineContent, Intent } from '@airline-dsl/shared'
+import { GENERATE_ROUTE_TOOL, createRouteFromIntent } from './tools.js'
+import { applyDefaults, parseIntent, validateIntentParams } from '../intent/index.js'
+import type { RouteRepository } from '../store/index.js'
+import type { ValidationLimits } from '../airline/index.js'
 
 // pi API 实际签名记录（pi 0.84.2 源码确认）：
 // - LLM 通过 AgentOptions.streamFn 构造注入（StreamFn = (model, context, options) => AssistantMessageEventStream）
@@ -11,6 +14,17 @@ import { GENERATE_ROUTE_TOOL } from './tools.js'
 // - 工具定义 AgentTool = { name, description, parameters, label, execute }，execute 内 throw 被
 //   agent-loop 编码为 isError:true 的 toolResult 回灌 LLM
 // - Agent 事件：message_update 携带 assistantMessageEvent（含 text_delta）；agent_end 为最后事件
+
+const FALLBACK_GENERATED_TEXT = '当前为非 AI 生成，规则引擎生成'
+const PARAM_LABELS: Record<string, string> = {
+  region: '区域',
+  shape: '环绕形状',
+  center: '环绕中心',
+  radiusM: '环绕半径（米）',
+  heightM: '飞行高度（米）',
+  speedMps: '飞行速度（米/秒）',
+  actions: '拍摄动作',
+}
 
 export interface SessionHandle {
   id: string
@@ -21,6 +35,9 @@ export interface SessionManagerOptions {
   model: Model<Api>
   streamFn: StreamFn
   tools: AgentTool<any>[]
+  store: RouteRepository
+  llmFallbackEnabled: boolean
+  limits?: ValidationLimits
   createRouteTool?: () => AgentTool<any>
 }
 
@@ -98,7 +115,40 @@ export function createSessionManager(options: SessionManagerOptions): SessionMan
 
   async function runTurn(handle: SessionHandle, userText: string, onEvent: (event: SharedAgentEvent) => void): Promise<void> {
     const agent = getSession(handle).agent
+    let llmFailed = false
+    let failureMessage = 'LLM 调用失败'
+    const pendingDeltas: string[] = []
+    const flushDeltas = () => {
+      if (llmFailed) {
+        pendingDeltas.length = 0
+        return
+      }
+      for (const text of pendingDeltas) {
+        onEvent({ type: 'text_delta', text })
+      }
+      pendingDeltas.length = 0
+    }
     const unsubscribe = agent.subscribe((event) => {
+      if (event.type === 'message_update') {
+        const streamEvent = event.assistantMessageEvent
+        if (streamEvent.type === 'text_delta') {
+          pendingDeltas.push(streamEvent.delta)
+        }
+        return
+      }
+      if (event.type === 'message_end') {
+        const message = event.message
+        if (message.role === 'assistant' && message.stopReason === 'error') {
+          llmFailed = true
+          failureMessage = message.errorMessage ?? 'LLM 调用失败'
+          pendingDeltas.length = 0
+          return
+        }
+      }
+      if (event.type === 'agent_end' && llmFailed) {
+        return
+      }
+      flushDeltas()
       for (const sharedEvent of toSharedEvents(event, agent)) {
         onEvent(sharedEvent)
       }
@@ -108,6 +158,38 @@ export function createSessionManager(options: SessionManagerOptions): SessionMan
     } finally {
       unsubscribe()
     }
+    if (!llmFailed) {
+      return
+    }
+    if (!options.llmFallbackEnabled) {
+      onEvent({ type: 'error', code: 'llm_error', message: failureMessage })
+      onEvent({ type: 'done' })
+      return
+    }
+    await runFallback(userText, onEvent)
+  }
+
+  async function runFallback(userText: string, onEvent: (event: SharedAgentEvent) => void): Promise<void> {
+    const partial = parseIntent(userText)
+    const validation = validateIntentParams(partial)
+    if (!validation.ok) {
+      onEvent({
+        type: 'clarification',
+        missing: validation.missing,
+        text: `当前为非 AI 生成模式，请提供：${validation.missing.map((key) => PARAM_LABELS[key] ?? key).join('、')}`,
+      })
+      onEvent({ type: 'done' })
+      return
+    }
+    const intent = applyDefaults(partial as Intent)
+    const { route, content } = createRouteFromIntent(intent, {
+      store: options.store,
+      limits: options.limits,
+      aiGenerated: false,
+    })
+    onEvent({ type: 'text_delta', text: FALLBACK_GENERATED_TEXT })
+    onEvent({ type: 'route_generated', routeId: route.id, content, aiGenerated: false })
+    onEvent({ type: 'done' })
   }
 
   function serializeState(handle: SessionHandle): string {

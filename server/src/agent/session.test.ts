@@ -4,6 +4,7 @@ import type { AgentTool, StreamFn } from '@earendil-works/pi-agent-core'
 import { Type } from 'typebox'
 import type { AgentEvent as SharedAgentEvent } from '@airline-dsl/shared'
 import { loadConfig } from '../config.js'
+import { openDb, RouteRepository } from '../store/index.js'
 import { MissingIntentParamsError } from './errors.js'
 import { createSessionManager } from './session.js'
 
@@ -71,11 +72,14 @@ describe('session', () => {
     const llm = createFakeLlm()
     llm.faux.setResponses([fauxAssistantMessage('你好，我是航线编辑助手')])
 
+    const db = openDb(':memory:')
     const manager = createSessionManager({
       systemPrompt: '你是航线编辑助手，负责生成大疆航线。',
       model: llm.model,
       streamFn: llm.streamFn,
       tools: [],
+      store: new RouteRepository(db),
+      llmFallbackEnabled: true,
     })
     const handle = manager.createSession()
 
@@ -86,15 +90,19 @@ describe('session', () => {
     const textDeltas = events.filter((event) => event.type === 'text_delta')
     expect(textDeltas.length).toBeGreaterThan(0)
     expect(events[events.length - 1].type).toBe('done')
+    db.close()
   })
 
   test('serializeState 纯 JSON 且 restoreSession 后带完整历史继续对话', async () => {
     const llm = createFakeLlm()
+    const db = openDb(':memory:')
     const manager = createSessionManager({
       systemPrompt: '你是航线编辑助手。',
       model: llm.model,
       streamFn: llm.streamFn,
       tools: [],
+      store: new RouteRepository(db),
+      llmFallbackEnabled: true,
     })
 
     llm.faux.setResponses([fauxAssistantMessage('已收到第一轮')])
@@ -135,11 +143,14 @@ describe('session', () => {
 
   test('test_tool 抛错被编码为 isError:true toolResult 回灌 LLM', async () => {
     const llm = createFakeLlm()
+    const db = openDb(':memory:')
     const manager = createSessionManager({
       systemPrompt: '你是航线编辑助手。',
       model: llm.model,
       streamFn: llm.streamFn,
       tools: [testTool],
+      store: new RouteRepository(db),
+      llmFallbackEnabled: true,
     })
     const handle = manager.createSession()
 

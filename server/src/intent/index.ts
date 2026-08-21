@@ -1,3 +1,4 @@
+export { parseIntent } from './fallback.js'
 export { intentSchema } from './schema.js'
 export { validateIntentParams } from './validate.js'
 export { mergeIntent } from './merge.js'
