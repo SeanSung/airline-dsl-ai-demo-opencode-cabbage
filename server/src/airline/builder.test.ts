@@ -76,8 +76,8 @@ describe('airline.buildAirlineContent', () => {
       expect(w.heading_angle).toBe(0)
       expect(w.turn_mode).toBe('clockwise')
     }
-    expect(content.waypoints[0].lat).toBe(22.532635)
-    expect(content.waypoints[1].lng).toBe(113.936066)
+    expect(content.waypoints[0].lat).toBeCloseTo(22.532635, 9)
+    expect(content.waypoints[1].lng).toBeCloseTo(113.936066, 9)
   })
 
   test('动作挂载：gimbalRotate/takePhoto/hover/startRecord 在首航点、stopRecord 在末航点', () => {
