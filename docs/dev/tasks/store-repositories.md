@@ -1,5 +1,5 @@
 ---
-issue: null
+issue: 8
 test_commands:
   - bun test src/store     # server/ 目录：Repository 集成测试（:memory: 库）
 verify_commands:
@@ -23,7 +23,7 @@ route 与 conversation 可完整落库/查询/更新（JSON 字段无损），ag
 
 ## Blocked By
 
-- shared-contract
+- #3
 
 ## Implementation Notes
 

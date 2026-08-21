@@ -1,5 +1,5 @@
 ---
-issue: null
+issue: 7
 test_commands:
   - bun test src/intent    # server/ 目录：intent 纯函数单测
 verify_commands:
@@ -22,7 +22,7 @@ verify_commands:
 
 ## Blocked By
 
-- shared-contract
+- #3
 
 ## Implementation Notes
 

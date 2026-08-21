@@ -1,5 +1,5 @@
 ---
-issue: null
+issue: 13
 test_commands:
   - vitest run src/api/useChatStream.test.tsx src/components/ChatPanel.test.tsx   # frontend/ 目录：mock fetch 的流式渲染组件测试
 verify_commands:
@@ -27,7 +27,7 @@ verify_commands:
 
 ## Blocked By
 
-- http-sse-api
+- #12
 
 ## Implementation Notes
 

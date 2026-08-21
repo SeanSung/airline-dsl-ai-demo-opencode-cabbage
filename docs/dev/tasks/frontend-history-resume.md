@@ -1,5 +1,5 @@
 ---
-issue: null
+issue: 15
 test_commands:
   - vitest run src/components/HistoryPanel.test.tsx   # frontend/ 目录：历史列表 + 续编组件测试（mock fetch）
 verify_commands:
@@ -22,7 +22,7 @@ verify_commands:
 
 ## Blocked By
 
-- frontend-route-map
+- #14
 
 ## Implementation Notes
 

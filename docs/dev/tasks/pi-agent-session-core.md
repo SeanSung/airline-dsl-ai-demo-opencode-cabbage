@@ -1,5 +1,5 @@
 ---
-issue: null
+issue: 4
 test_commands:
   - bun test src/test/session.test.ts   # server/ 目录：假 LLM 注入的会话集成测试
 verify_commands:
@@ -26,7 +26,7 @@ verify_commands:
 
 ## Blocked By
 
-- shared-contract
+- #3
 
 ## Implementation Notes
 

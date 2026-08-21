@@ -1,5 +1,5 @@
 ---
-issue: null
+issue: 14
 test_commands:
   - vitest run src/lib/cesium-entities.test.ts   # frontend/ 目录：buildCesiumEntities 纯函数单测
 verify_commands:
@@ -23,8 +23,8 @@ verify_commands:
 
 ## Blocked By
 
-- frontend-chat-stream
-- http-sse-api
+- #13
+- #12
 
 ## Implementation Notes
 

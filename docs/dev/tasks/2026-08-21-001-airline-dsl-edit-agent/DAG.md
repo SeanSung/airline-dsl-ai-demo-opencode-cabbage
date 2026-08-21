@@ -1,24 +1,24 @@
 # Task DAG — 基于 DSL 航线编辑脚本的大疆航线编辑 Agent
 
-> 日期：2026-08-21 · 序号：001 · 状态：规划（待调用方发布）
+> 日期：2026-08-21 · 序号：001 · 状态：已发布（Sub Issues #3–#15）
 > 节点 = 行为 Task；边 = 真实 blocking edge（前者未完成，后者无法开始）
-> 发布后由调用方将节点与依赖更新为真实 Issue 编号。
+> Issue 编号：#3 shared-contract · #4 pi-agent-session-core · #5 orbit-geometry · #6 airline-build-validate · #7 intent-core · #8 store-repositories · #9 gbh-submit-client · #10 agent-route-generation · #11 intent-fallback-degradation · #12 http-sse-api · #13 frontend-chat-stream · #14 frontend-route-map · #15 frontend-history-resume
 
 ```mermaid
 graph TD
-    shared["shared-contract"]
-    pi["pi-agent-session-core"]
-    orbit["orbit-geometry"]
-    airline["airline-build-validate"]
-    intent["intent-core"]
-    store["store-repositories"]
-    gbh["gbh-submit-client"]
-    gen["agent-route-generation"]
-    deg["intent-fallback-degradation"]
-    http["http-sse-api"]
-    chat["frontend-chat-stream"]
-    map["frontend-route-map"]
-    hist["frontend-history-resume"]
+    shared["#3 shared-contract"]
+    pi["#4 pi-agent-session-core"]
+    orbit["#5 orbit-geometry"]
+    airline["#6 airline-build-validate"]
+    intent["#7 intent-core"]
+    store["#8 store-repositories"]
+    gbh["#9 gbh-submit-client"]
+    gen["#10 agent-route-generation"]
+    deg["#11 intent-fallback-degradation"]
+    http["#12 http-sse-api"]
+    chat["#13 frontend-chat-stream"]
+    map["#14 frontend-route-map"]
+    hist["#15 frontend-history-resume"]
 
     %% 第一层：契约基础
     shared --> pi
@@ -54,14 +54,14 @@ graph TD
 
 ## 拓扑顺序
 
-1. `shared-contract`
-2. `pi-agent-session-core`、`orbit-geometry`、`airline-build-validate`、`intent-core`、`store-repositories`、`gbh-submit-client`（可并行，均只依赖 shared-contract）
-3. `agent-route-generation`
-4. `intent-fallback-degradation`
-5. `http-sse-api`
-6. `frontend-chat-stream`
-7. `frontend-route-map`
-8. `frontend-history-resume`
+1. `#3 shared-contract`
+2. `#4 pi-agent-session-core`、`#5 orbit-geometry`、`#6 airline-build-validate`、`#7 intent-core`、`#8 store-repositories`、`#9 gbh-submit-client`（可并行，均只依赖 shared-contract）
+3. `#10 agent-route-generation`
+4. `#11 intent-fallback-degradation`
+5. `#12 http-sse-api`
+6. `#13 frontend-chat-stream`
+7. `#14 frontend-route-map`
+8. `#15 frontend-history-resume`
 
 ## 检查结论
 

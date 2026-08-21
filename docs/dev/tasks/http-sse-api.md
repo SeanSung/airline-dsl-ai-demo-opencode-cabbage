@@ -1,5 +1,5 @@
 ---
-issue: null
+issue: 12
 test_commands:
   - bun test src/test/http.test.ts   # server/ 目录：app.request() 免端口契约测试
 verify_commands:
@@ -30,11 +30,11 @@ verify_commands:
 
 ## Blocked By
 
-- pi-agent-session-core
-- agent-route-generation
-- intent-fallback-degradation
-- store-repositories
-- gbh-submit-client
+- #4
+- #10
+- #11
+- #8
+- #9
 
 ## Implementation Notes
 

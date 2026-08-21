@@ -1,5 +1,5 @@
 ---
-issue: null
+issue: 10
 test_commands:
   - bun test src/test/route-generation.test.ts   # server/ 目录：假 LLM 澄清闭环集成测试
 verify_commands:
@@ -26,11 +26,11 @@ verify_commands:
 
 ## Blocked By
 
-- pi-agent-session-core
-- intent-core
-- orbit-geometry
-- airline-build-validate
-- store-repositories
+- #4
+- #7
+- #5
+- #6
+- #8
 
 ## Implementation Notes
 

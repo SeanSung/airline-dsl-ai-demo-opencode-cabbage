@@ -1,5 +1,5 @@
 ---
-issue: null
+issue: 9
 test_commands:
   - bun test src/gbh       # server/ 目录：submitRoute 集成测试（stub fetch）
 verify_commands:
@@ -23,7 +23,7 @@ AirlineContent 可提交到 GBH 模拟飞行平台，平台响应（201/400/5xx/
 
 ## Blocked By
 
-- shared-contract
+- #3
 
 ## Implementation Notes
 

@@ -1,5 +1,5 @@
 ---
-issue: null
+issue: 6
 test_commands:
   - bun test src/airline    # server/ 目录：builder/validator 单测
 verify_commands:
@@ -23,7 +23,7 @@ Intent 可被映射为对齐 open-api 契约的 AirlineContent（takeoff/waypoin
 
 ## Blocked By
 
-- shared-contract
+- #3
 
 ## Implementation Notes
 

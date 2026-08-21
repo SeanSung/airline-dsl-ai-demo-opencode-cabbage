@@ -1,5 +1,5 @@
 ---
-issue: null
+issue: 11
 test_commands:
   - bun test src/test/degradation.test.ts   # server/ 目录：fallback 单测 + 降级集成测试
 verify_commands:
@@ -23,8 +23,8 @@ LLM 不可用时关键词规则兜底：参数齐备则走与 LLM 完全相同�
 
 ## Blocked By
 
-- intent-core
-- agent-route-generation
+- #7
+- #10
 
 ## Implementation Notes
 

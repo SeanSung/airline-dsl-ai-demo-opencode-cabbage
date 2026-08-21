@@ -1,5 +1,5 @@
 ---
-issue: null
+issue: 5
 test_commands:
   - bun test src/geometry   # server/ 目录：orbit 单测
 verify_commands:
@@ -23,7 +23,7 @@ verify_commands:
 
 ## Blocked By
 
-- shared-contract
+- #3
 
 ## Implementation Notes
 

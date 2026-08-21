@@ -1,5 +1,5 @@
 ---
-issue: null
+issue: 3
 test_commands:
   - bun test            # 在 shared/ 目录执行（常量断言）
 verify_commands:
