@@ -1,7 +1,8 @@
 import type { Api, Model } from '@earendil-works/pi-ai'
 import { Agent, uuidv7 } from '@earendil-works/pi-agent-core'
 import type { AgentEvent, AgentMessage, AgentTool, StreamFn, ThinkingLevel } from '@earendil-works/pi-agent-core'
-import type { AgentEvent as SharedAgentEvent } from '@airline-dsl/shared'
+import type { AgentEvent as SharedAgentEvent, AirlineContent } from '@airline-dsl/shared'
+import { GENERATE_ROUTE_TOOL } from './tools.js'
 
 // pi API 实际签名记录（pi 0.84.2 源码确认）：
 // - LLM 通过 AgentOptions.streamFn 构造注入（StreamFn = (model, context, options) => AssistantMessageEventStream）
@@ -20,6 +21,7 @@ export interface SessionManagerOptions {
   model: Model<Api>
   streamFn: StreamFn
   tools: AgentTool<any>[]
+  createRouteTool?: () => AgentTool<any>
 }
 
 export interface SessionManager {
@@ -36,13 +38,17 @@ interface SessionEntry {
 export function createSessionManager(options: SessionManagerOptions): SessionManager {
   const sessions = new Map<string, SessionEntry>()
 
+  function sessionTools(): AgentTool<any>[] {
+    return options.createRouteTool ? [...options.tools, options.createRouteTool()] : options.tools
+  }
+
   function createSession(): SessionHandle {
     const agent = new Agent({
       streamFn: options.streamFn,
       initialState: {
         systemPrompt: options.systemPrompt,
         model: options.model,
-        tools: options.tools,
+        tools: sessionTools(),
       },
     })
     return register(agent)
@@ -69,7 +75,7 @@ export function createSessionManager(options: SessionManagerOptions): SessionMan
         systemPrompt: typeof state.systemPrompt === 'string' ? state.systemPrompt : options.systemPrompt,
         model: state.model as Model<Api>,
         thinkingLevel: state.thinkingLevel as ThinkingLevel,
-        tools: options.tools,
+        tools: sessionTools(),
         messages: state.messages as AgentMessage[],
       },
     })
@@ -131,6 +137,17 @@ function toSharedEvents(event: AgentEvent, agent: Agent): SharedAgentEvent[] {
       const message = event.message
       if (message.role === 'assistant' && message.stopReason === 'error') {
         return [{ type: 'error', code: 'llm_error', message: message.errorMessage ?? 'LLM 调用失败' }]
+      }
+      return []
+    }
+    case 'tool_execution_end': {
+      if (event.toolName === GENERATE_ROUTE_TOOL && !event.isError) {
+        const details = (event.result as { details?: unknown } | undefined)?.details as
+          | { routeId?: string; content?: AirlineContent }
+          | undefined
+        if (details?.routeId && details?.content) {
+          return [{ type: 'route_generated', routeId: details.routeId, content: details.content, aiGenerated: true }]
+        }
       }
       return []
     }
