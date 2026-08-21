@@ -25,11 +25,11 @@ function rowToConversation(row: ConversationRow): Conversation {
 export class ConversationRepository {
   constructor(private readonly db: Database) {}
 
-  create(input: ConversationInput): Conversation {
+  create(input: ConversationInput, id?: string): Conversation {
     const now = new Date().toISOString()
     const conv: Conversation = {
       ...input,
-      id: randomUUID(),
+      id: id ?? randomUUID(),
       createdAt: now,
       updatedAt: now,
     }
