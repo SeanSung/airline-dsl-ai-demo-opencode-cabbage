@@ -9,6 +9,7 @@
     "dev": "bun run src/index.ts"
   },
   "dependencies": {
-    "@airline-dsl/shared": "*"
+    "@airline-dsl/shared": "*",
+    "typebox": "^1.3.16"
   }
 }
