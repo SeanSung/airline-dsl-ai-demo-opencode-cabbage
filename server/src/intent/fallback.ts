@@ -3,7 +3,7 @@ import { DEFAULT_REGION, NEST_ANCHOR, type Intent } from '@airline-dsl/shared'
 const SHAPE_RE = /环绕|绕|转圈/
 const REGION_RE = /沧海|校区/
 const RADIUS_RE = /半径\s*(\d+)/
-const HEIGHT_HIGH_RE = /高\s*(\d+)/
+const HEIGHT_HIGH_RE = /高(?:度)?\s*(\d+)/
 const HEIGHT_METER_RE = /(\d+)米/
 const SPEED_RE = /速度\s*(\d+)/
 

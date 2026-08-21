@@ -117,18 +117,38 @@ export function createSessionManager(options: SessionManagerOptions): SessionMan
     const agent = getSession(handle).agent
     let llmFailed = false
     let failureMessage = 'LLM 调用失败'
+    const pendingDeltas: string[] = []
+    const flushDeltas = () => {
+      if (llmFailed) {
+        pendingDeltas.length = 0
+        return
+      }
+      for (const text of pendingDeltas) {
+        onEvent({ type: 'text_delta', text })
+      }
+      pendingDeltas.length = 0
+    }
     const unsubscribe = agent.subscribe((event) => {
+      if (event.type === 'message_update') {
+        const streamEvent = event.assistantMessageEvent
+        if (streamEvent.type === 'text_delta') {
+          pendingDeltas.push(streamEvent.delta)
+        }
+        return
+      }
       if (event.type === 'message_end') {
         const message = event.message
         if (message.role === 'assistant' && message.stopReason === 'error') {
           llmFailed = true
           failureMessage = message.errorMessage ?? 'LLM 调用失败'
+          pendingDeltas.length = 0
           return
         }
       }
       if (event.type === 'agent_end' && llmFailed) {
         return
       }
+      flushDeltas()
       for (const sharedEvent of toSharedEvents(event, agent)) {
         onEvent(sharedEvent)
       }
