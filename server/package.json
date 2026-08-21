@@ -9,6 +9,10 @@
     "dev": "bun run src/index.ts"
   },
   "dependencies": {
-    "@airline-dsl/shared": "*"
+    "@airline-dsl/shared": "*",
+    "@earendil-works/pi-ai": "0.84.2",
+    "@earendil-works/pi-agent-core": "0.84.2",
+    "hono": "^4.9.0",
+    "typebox": "1.3.7"
   }
 }
