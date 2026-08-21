@@ -21,7 +21,7 @@ export function createApp(deps: HttpDeps): Hono {
   app.post('/api/conversations', (c) => {
     const handle = deps.sessionManager.createSession()
     sessions.set(handle.id, handle)
-    deps.conversations.create({ messagesJson: deps.sessionManager.serializeState(handle), routeId: undefined })
+    deps.conversations.create({ messagesJson: deps.sessionManager.serializeState(handle), routeId: undefined }, handle.id)
     return c.json({ conversationId: handle.id }, 201)
   })
 
@@ -49,7 +49,7 @@ export function createApp(deps: HttpDeps): Hono {
         if (event.type === 'route_generated') {
           routeId = event.routeId
         }
-        stream.writeSSE({ data: JSON.stringify(event) })
+        stream.write(`data: ${JSON.stringify(event)}\n\n`)
       })
       deps.conversations.updateState(id, deps.sessionManager.serializeState(handle), routeId ?? null)
     })
