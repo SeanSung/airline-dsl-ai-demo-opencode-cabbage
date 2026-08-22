@@ -28,6 +28,7 @@ export type ChatAction =
   | { type: 'error'; message: string }
   | { type: 'done' }
   | { type: 'reset' }
+  | { type: 'hydrate'; messages: ChatMessage[]; route: RouteData | null }
 
 export type Dispatch = (action: ChatAction) => void
 
@@ -85,6 +86,8 @@ export function chatReducer(state: ChatState, action: ChatAction): ChatState {
       return { ...state, streaming: false }
     case 'reset':
       return createChatState()
+    case 'hydrate':
+      return { messages: action.messages, route: action.route, streaming: false, errorBar: null }
     default:
       return state
   }
