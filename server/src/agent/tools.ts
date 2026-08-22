@@ -68,11 +68,12 @@ export function createGenerateRouteTool(options: GenerateRouteToolOptions): Agen
     execute: async (_toolCallId, params) => {
       const merged = mergeIntent(params as Partial<Intent>, draft)
       draft = merged
-      const validation = validateIntentParams(merged)
+      const withDefaults = applyDefaults(merged)
+      const validation = validateIntentParams(withDefaults)
       if (!validation.ok) {
         throw new MissingIntentParamsError(validation.missing)
       }
-      const intent = applyDefaults(merged as Intent)
+      const intent = withDefaults
       const { route, content } = createRouteFromIntent(intent, {
         store: options.store,
         limits: options.limits,
