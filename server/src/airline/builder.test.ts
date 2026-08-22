@@ -1,5 +1,6 @@
 import { describe, expect, test } from 'bun:test'
-import type { Intent, Waypoint } from '@airline-dsl/shared'
+import type { GeoPoint, Intent } from '@airline-dsl/shared'
+import { orbitWaypoints } from '../geometry/orbit.js'
 import { buildAirlineContent } from './builder.js'
 
 const baseIntent: Intent = {
@@ -13,7 +14,7 @@ const baseIntent: Intent = {
   actions: [],
 }
 
-function fixedWaypoints(intent: Intent): Waypoint[] {
+function fixedWaypoints(intent: Intent): GeoPoint[] {
   const offsets = [
     { lat: 0.001, lng: 0 },
     { lat: 0, lng: 0.001 },
@@ -23,18 +24,12 @@ function fixedWaypoints(intent: Intent): Waypoint[] {
   return offsets.map((o) => ({
     lat: intent.center.lat + o.lat,
     lng: intent.center.lng + o.lng,
-    altitude: 999,
-    speed: 999,
-    heading_mode: 'followWayline',
-    heading_angle: 45,
-    turn_mode: 'counterClockwise',
-    actions: [],
   }))
 }
 
 describe('airline.buildAirlineContent', () => {
   test('顶层字段按 §7.1 映射：takeoff=center、M350、全局参数与飞行行为默认值', () => {
-    const content = buildAirlineContent({ ...baseIntent, name: '沧海巡检' }, fixedWaypoints)
+    const content = buildAirlineContent({ ...baseIntent, name: '沧海巡检' }, fixedWaypoints(baseIntent))
     expect(content.name).toBe('沧海巡检')
     expect(content.aircraft_model).toBe('M350')
     expect(content.takeoff).toEqual({ lat: 22.531635, lng: 113.935066, altitude: 0 })
@@ -48,12 +43,13 @@ describe('airline.buildAirlineContent', () => {
   })
 
   test('name 缺省时自动生成「region-环绕-时间戳」', () => {
-    const content = buildAirlineContent(baseIntent, fixedWaypoints)
+    const content = buildAirlineContent(baseIntent, fixedWaypoints(baseIntent))
     expect(content.name).toMatch(/^沧海校区-环绕-\d+$/)
   })
 
-  test('默认生成器产出 count 个以 center 为圆心、radiusM 为半径的航点', () => {
-    const content = buildAirlineContent(baseIntent)
+  test('传入 orbitWaypoints 坐标时产出 count 个以 center 为圆心、radiusM 为半径的航点', () => {
+    const positions = orbitWaypoints({ center: baseIntent.center, radiusM: baseIntent.radiusM, count: 4 })
+    const content = buildAirlineContent(baseIntent, positions)
     expect(content.waypoints).toHaveLength(4)
     const r = Math.hypot(
       content.waypoints[0].lat - baseIntent.center.lat,
@@ -67,7 +63,7 @@ describe('airline.buildAirlineContent', () => {
   })
 
   test('waypoint 字段映射：altitude=heightM、speed=speedMps、heading_mode/fixed、heading_angle=0、turn_mode/clockwise', () => {
-    const content = buildAirlineContent(baseIntent, fixedWaypoints)
+    const content = buildAirlineContent(baseIntent, fixedWaypoints(baseIntent))
     expect(content.waypoints).toHaveLength(4)
     for (const w of content.waypoints) {
       expect(w.altitude).toBe(120)
@@ -87,7 +83,7 @@ describe('airline.buildAirlineContent', () => {
         actions: [{ type: 'takePhoto' }, { type: 'hover', seconds: 8 }, { type: 'record' }],
         gimbalPitchDeg: 60,
       },
-      fixedWaypoints,
+      fixedWaypoints(baseIntent),
     )
     expect(content.waypoints[0].actions).toEqual([
       { action_type: 'gimbalRotate', action_params: { pitch_angle: 60 } },
@@ -103,12 +99,12 @@ describe('airline.buildAirlineContent', () => {
   })
 
   test('hover 未指定 seconds 时 hover_time 默认 5', () => {
-    const content = buildAirlineContent({ ...baseIntent, actions: [{ type: 'hover' }] }, fixedWaypoints)
+    const content = buildAirlineContent({ ...baseIntent, actions: [{ type: 'hover' }] }, fixedWaypoints(baseIntent))
     expect(content.waypoints[0].actions).toEqual([{ action_type: 'hover', action_params: { hover_time: 5 } }])
   })
 
   test('未提供 gimbalPitchDeg 时不挂载 gimbalRotate', () => {
-    const content = buildAirlineContent({ ...baseIntent, actions: [{ type: 'takePhoto' }] }, fixedWaypoints)
+    const content = buildAirlineContent({ ...baseIntent, actions: [{ type: 'takePhoto' }] }, fixedWaypoints(baseIntent))
     expect(content.waypoints[0].actions).toEqual([
       { action_type: 'takePhoto', action_params: { payload_lens_index: 'wide' } },
     ])

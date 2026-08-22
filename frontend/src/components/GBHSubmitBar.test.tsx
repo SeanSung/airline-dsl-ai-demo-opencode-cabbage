@@ -8,6 +8,16 @@ function makeRoute(routeId = 'r1'): RouteData {
   return {
     routeId,
     aiGenerated: true,
+    intent: {
+      region: '沧海校区',
+      shape: 'orbit',
+      center: { lat: 22.531635, lng: 113.935066 },
+      radiusM: 200,
+      count: 8,
+      heightM: 120,
+      speedMps: 15,
+      actions: [],
+    },
     content: {
       name: '巡检航线',
       aircraft_model: 'M350',

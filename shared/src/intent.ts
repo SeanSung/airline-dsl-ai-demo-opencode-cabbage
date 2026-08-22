@@ -26,9 +26,7 @@ export interface Intent {
 }
 
 export const REQUIRED_INTENT_PARAMS = [
-  'region',
   'shape',
-  'center',
   'radiusM',
   'heightM',
   'speedMps',

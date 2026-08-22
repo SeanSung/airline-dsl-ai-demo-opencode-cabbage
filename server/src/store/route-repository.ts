@@ -77,15 +77,21 @@ export class RouteRepository {
   list(): RouteSummary[] {
     const rows = this.db
       .query(
-        `SELECT id, name, ai_generated, status, created_at, updated_at
-         FROM routes ORDER BY created_at DESC`,
+        `SELECT r.id, r.name, r.ai_generated, r.status, r.created_at, r.updated_at,
+                json_array_length(r.content_json, '$.waypoints') AS waypoint_count,
+                c.id AS conversation_id
+         FROM routes r
+         LEFT JOIN conversations c ON c.route_id = r.id
+         ORDER BY r.created_at DESC`,
       )
-      .all() as RouteRow[]
+      .all() as (RouteRow & { waypoint_count: number | null; conversation_id: string | null })[]
     return rows.map((row) => ({
       id: row.id,
       name: row.name,
       aiGenerated: row.ai_generated === 1,
       status: row.status as Route['status'],
+      waypointCount: row.waypoint_count ?? 0,
+      conversationId: row.conversation_id ?? undefined,
       createdAt: row.created_at,
       updatedAt: row.updated_at,
     }))

@@ -20,6 +20,8 @@ export interface RouteSummary {
   name: string
   aiGenerated: boolean
   status: RouteStatus
+  waypointCount: number
+  conversationId?: string
   createdAt: string
   updatedAt: string
 }

@@ -11,10 +11,10 @@ function Workspace() {
   const { loadConversation } = useChatStream(dispatch)
 
   const onResume = useCallback(
-    async (routeId: string) => {
-      const conversationId = conversationForRoute(routeId)
-      if (conversationId) {
-        await loadConversation(conversationId, routeId)
+    async (routeId: string, conversationId?: string) => {
+      const cid = conversationId ?? conversationForRoute(routeId)
+      if (cid) {
+        await loadConversation(cid, routeId)
       }
     },
     [loadConversation],

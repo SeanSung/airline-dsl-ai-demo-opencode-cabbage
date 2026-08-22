@@ -31,6 +31,19 @@ function makeContent(): AirlineContent {
   }
 }
 
+function makeIntent() {
+  return {
+    region: '沧海校区',
+    shape: 'orbit' as const,
+    center: { lat: 22.531635, lng: 113.935066 },
+    radiusM: 200,
+    count: 8,
+    heightM: 120,
+    speedMps: 15,
+    actions: [] as { type: 'takePhoto'; seconds?: number; payloadLensIndex?: string }[],
+  }
+}
+
 function sseBody(events: AgentEvent[]): BodyInit {
   const encoder = new TextEncoder()
   const lines = events.map((e) => encoder.encode(`data: ${JSON.stringify(e)}\n\n`))
@@ -91,7 +104,7 @@ describe('ChatPanel', () => {
   })
 
   it('route_generated 触发 RouteCard，aiGenerated:false 显示"非 AI 生成"', async () => {
-    renderPanel([{ type: 'route_generated', routeId: 'r1', content: makeContent(), aiGenerated: false }, { type: 'done' }])
+    renderPanel([{ type: 'route_generated', routeId: 'r1', content: makeContent(), intent: makeIntent(), aiGenerated: false }, { type: 'done' }])
     fireEvent.change(screen.getByPlaceholderText('输入需求…'), { target: { value: '环绕沧海一圈' } })
     fireEvent.click(screen.getByText('发送'))
     await waitFor(() => expect(screen.getByTestId('route-card')).toBeInTheDocument())
@@ -107,7 +120,7 @@ describe('ChatPanel', () => {
 
   it('新建会话重置消息与路由', async () => {
     renderPanel([
-      { type: 'route_generated', routeId: 'r1', content: makeContent(), aiGenerated: true },
+      { type: 'route_generated', routeId: 'r1', content: makeContent(), intent: makeIntent(), aiGenerated: true },
       { type: 'done' },
     ])
     fireEvent.change(screen.getByPlaceholderText('输入需求…'), { target: { value: '环绕沧海一圈' } })

@@ -55,16 +55,8 @@ describe('constants', () => {
 })
 
 describe('intent 契约', () => {
-  test('required 集合对齐 spec §6.1', () => {
-    expect([...REQUIRED_INTENT_PARAMS]).toEqual([
-      'region',
-      'shape',
-      'center',
-      'radiusM',
-      'heightM',
-      'speedMps',
-      'actions',
-    ])
+  test('required 集合（shape/radiusM/heightM/speedMps/actions；region/center 由 applyDefaults 兜底）', () => {
+    expect([...REQUIRED_INTENT_PARAMS]).toEqual(['shape', 'radiusM', 'heightM', 'speedMps', 'actions'])
   })
 
   test('默认值', () => {

@@ -1,7 +1,6 @@
 import {
   DEFAULT_AIRCRAFT_MODEL,
   DEFAULT_ALTITUDE_MODE,
-  DEFAULT_COUNT,
   DEFAULT_EXIT_ON_RC_LOST,
   DEFAULT_FINISH_ACTION,
   DEFAULT_GLOBAL_HEIGHT,
@@ -10,39 +9,15 @@ import {
   DEFAULT_RTH_ALTITUDE,
   DEFAULT_TAKEOFF_SECURITY_HEIGHT,
   DEFAULT_TURN_MODE,
-  METERS_PER_DEGREE,
   type ActionParam,
   type AirlineContent,
+  type GeoPoint,
   type Intent,
   type Waypoint,
 } from '@airline-dsl/shared'
 
-export type WaypointGenerator = (intent: Intent) => Waypoint[]
-
 const HOVER_SECONDS_DEFAULT = 5
 const PAYLOAD_LENS_INDEX_DEFAULT = 'wide'
-
-const defaultWaypointGenerator = (intent: Intent): Waypoint[] => {
-  const count = intent.count ?? DEFAULT_COUNT
-  const base: Omit<Waypoint, 'lat' | 'lng'> = {
-    altitude: 0,
-    speed: 0,
-    heading_mode: DEFAULT_HEADING_MODE,
-    heading_angle: 0,
-    turn_mode: DEFAULT_TURN_MODE,
-    actions: [],
-  }
-  const points: Waypoint[] = []
-  for (let i = 0; i < count; i++) {
-    const angle = (i / count) * 2 * Math.PI
-    const lat = intent.center.lat + (intent.radiusM * Math.cos(angle)) / METERS_PER_DEGREE
-    const lng =
-      intent.center.lng +
-      (intent.radiusM * Math.sin(angle)) / (METERS_PER_DEGREE * Math.cos((intent.center.lat * Math.PI) / 180))
-    points.push({ lat, lng, ...base })
-  }
-  return points
-}
 
 function mountActions(intent: Intent): { first: ActionParam[]; last: ActionParam[] } {
   const first: ActionParam[] = []
@@ -63,10 +38,9 @@ function mountActions(intent: Intent): { first: ActionParam[]; last: ActionParam
   return { first, last }
 }
 
-export function buildAirlineContent(intent: Intent, waypointGenerator?: WaypointGenerator): AirlineContent {
-  const generated = (waypointGenerator ?? defaultWaypointGenerator)(intent)
+export function buildAirlineContent(intent: Intent, waypointPositions: GeoPoint[]): AirlineContent {
   const { first, last } = mountActions(intent)
-  const waypoints: Waypoint[] = generated.map((w, i) => ({
+  const waypoints: Waypoint[] = waypointPositions.map((w, i) => ({
     lat: w.lat,
     lng: w.lng,
     altitude: intent.heightM,
@@ -74,7 +48,7 @@ export function buildAirlineContent(intent: Intent, waypointGenerator?: Waypoint
     heading_mode: DEFAULT_HEADING_MODE,
     heading_angle: 0,
     turn_mode: DEFAULT_TURN_MODE,
-    actions: i === 0 ? first : i === generated.length - 1 ? last : [],
+    actions: i === 0 ? first : i === waypointPositions.length - 1 ? last : [],
   }))
   return {
     name: intent.name ?? `${intent.region}-环绕-${Date.now()}`,

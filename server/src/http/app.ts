@@ -66,13 +66,7 @@ export function createApp(deps: HttpDeps): Hono {
   })
 
   app.get('/api/routes', (c) => {
-    const summaries = deps.routes.list()
-    return c.json(
-      summaries.map((summary) => ({
-        ...summary,
-        waypointCount: deps.routes.get(summary.id)?.content.waypoints.length ?? 0,
-      })),
-    )
+    return c.json(deps.routes.list())
   })
 
   app.get('/api/routes/:id', (c) => {

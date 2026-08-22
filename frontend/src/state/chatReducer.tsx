@@ -1,9 +1,10 @@
 import { createContext, useContext, useReducer, type ReactNode } from 'react'
-import type { AirlineContent } from '@airline-dsl/shared'
+import type { AirlineContent, Intent } from '@airline-dsl/shared'
 
 export interface RouteData {
   routeId: string
   content: AirlineContent
+  intent: Intent
   aiGenerated: boolean
 }
 
@@ -24,7 +25,7 @@ export type ChatAction =
   | { type: 'stream_start' }
   | { type: 'stream_delta'; text: string }
   | { type: 'clarification'; missing: string[]; text?: string }
-  | { type: 'route_generated'; routeId: string; content: AirlineContent; aiGenerated: boolean }
+  | { type: 'route_generated'; routeId: string; content: AirlineContent; intent: Intent; aiGenerated: boolean }
   | { type: 'error'; message: string }
   | { type: 'done' }
   | { type: 'reset' }
@@ -77,7 +78,7 @@ export function chatReducer(state: ChatState, action: ChatAction): ChatState {
     case 'route_generated':
       return {
         ...state,
-        route: { routeId: action.routeId, content: action.content, aiGenerated: action.aiGenerated },
+        route: { routeId: action.routeId, content: action.content, intent: action.intent, aiGenerated: action.aiGenerated },
         streaming: false,
       }
     case 'error':

@@ -30,9 +30,12 @@ export function createRouteFromIntent(
   intent: Intent,
   options: CreateRouteFromIntentOptions,
 ): { route: Route; content: AirlineContent } {
-  const content = buildAirlineContent(intent, (it) =>
-    orbitWaypoints({ center: it.center, radiusM: it.radiusM, count: it.count ?? DEFAULT_COUNT }),
-  )
+  const positions = orbitWaypoints({
+    center: intent.center,
+    radiusM: intent.radiusM,
+    count: intent.count ?? DEFAULT_COUNT,
+  })
+  const content = buildAirlineContent(intent, positions)
   const airlineResult = validateAirlineContent(content, options.limits)
   if (!airlineResult.ok) {
     throw new AirlineValidationError(airlineResult.errors)
