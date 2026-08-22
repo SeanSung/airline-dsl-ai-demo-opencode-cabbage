@@ -5,8 +5,9 @@ import { REQUIRED_INTENT_PARAMS } from '@airline-dsl/shared'
 import { intentSchema } from './schema.js'
 
 describe('intentSchema', () => {
-  test('required 集合对齐 spec §6.1 与 shared REQUIRED_INTENT_PARAMS', () => {
-    expect(intentSchema.required).toEqual([...REQUIRED_INTENT_PARAMS])
+  test('schema required 覆盖全部必填字段（含 region/center）；REQUIRED_INTENT_PARAMS 为澄清触发子集', () => {
+    expect(intentSchema.required).toEqual(['region', 'shape', 'center', 'radiusM', 'heightM', 'speedMps', 'actions'])
+    expect([...REQUIRED_INTENT_PARAMS].every((key) => intentSchema.required.includes(key))).toBe(true)
   })
 
   test('properties 覆盖全部 Intent 字段', () => {

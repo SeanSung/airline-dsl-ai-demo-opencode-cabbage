@@ -7,8 +7,9 @@ export interface RouteSummary {
   name: string
   aiGenerated: boolean
   status: RouteStatus
-  createdAt: string
   waypointCount: number
+  conversationId?: string
+  createdAt: string
 }
 
 export type SubmitStatus =
@@ -24,7 +25,7 @@ const STATUS_LABEL: Record<RouteStatus, string> = {
 }
 
 interface HistoryPanelProps {
-  onResume: (routeId: string) => Promise<void>
+  onResume: (routeId: string, conversationId?: string) => Promise<void>
   onResubmit: (routeId: string, setStatus: (s: SubmitStatus) => void) => Promise<void>
 }
 
@@ -93,7 +94,7 @@ export function HistoryPanel({ onResume, onResubmit }: HistoryPanelProps) {
                   </div>
                 </div>
                 <div className="history-actions">
-                  <button className="history-action" data-testid="resume-btn" onClick={() => void onResume(r.id)}>
+                  <button className="history-action" data-testid="resume-btn" onClick={() => void onResume(r.id, r.conversationId)}>
                     续编
                   </button>
                   <button

@@ -7,9 +7,9 @@ import {
   type Intent,
 } from '@airline-dsl/shared'
 
-export function applyDefaults(intent: Intent): Intent {
+export function applyDefaults(intent: Partial<Intent>): Intent {
   return {
-    ...intent,
+    ...(intent as Intent),
     name: intent.name ?? `${intent.region ?? DEFAULT_REGION}-环绕-${Date.now()}`,
     region: intent.region ?? DEFAULT_REGION,
     center: intent.center ?? NEST_ANCHOR,

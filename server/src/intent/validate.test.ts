@@ -8,9 +8,8 @@ describe('validateIntentParams', () => {
     expect(validateIntentParams({})).toEqual({ ok: false, missing: [...REQUIRED_INTENT_PARAMS] })
   })
 
-  test('缺 radiusM/heightM 时 missing 清单确定性可断言', () => {
+  test('缺 radiusM/heightM 时 missing 清单确定性可断言（region/center 有默认值不追问）', () => {
     const result = validateIntentParams({
-      region: '沧海校区',
       shape: 'orbit',
       center: { lat: 22.531635, lng: 113.935066 },
       speedMps: 15,

@@ -135,6 +135,8 @@ describe('RouteRepository', () => {
       name: '路线二',
       aiGenerated: false,
       status: 'validated',
+      waypointCount: 1,
+      conversationId: undefined,
       createdAt: newer.createdAt,
       updatedAt: newer.updatedAt,
     })
@@ -143,6 +145,8 @@ describe('RouteRepository', () => {
       name: '路线一',
       aiGenerated: true,
       status: 'draft',
+      waypointCount: 1,
+      conversationId: undefined,
       createdAt: older.createdAt,
       updatedAt: older.updatedAt,
     })

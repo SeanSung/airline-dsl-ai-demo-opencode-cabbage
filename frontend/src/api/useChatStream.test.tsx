@@ -43,6 +43,19 @@ function sseBody(events: AgentEvent[]): BodyInit {
   })
 }
 
+function makeIntent() {
+  return {
+    region: '沧海校区',
+    shape: 'orbit' as const,
+    center: { lat: 22.531635, lng: 113.935066 },
+    radiusM: 200,
+    count: 8,
+    heightM: 120,
+    speedMps: 15,
+    actions: [] as { type: 'takePhoto'; seconds?: number; payloadLensIndex?: string }[],
+  }
+}
+
 function stubFetch(events: AgentEvent[]) {
   const fn = vi.fn((url: string) => {
     if (url === '/api/conversations') {
@@ -85,7 +98,7 @@ describe('useChatStream', () => {
 
   it('route_generated 更新路由状态并携带 aiGenerated', async () => {
     stubFetch([
-      { type: 'route_generated', routeId: 'r1', content: makeContent(), aiGenerated: false },
+      { type: 'route_generated', routeId: 'r1', content: makeContent(), intent: makeIntent(), aiGenerated: false },
       { type: 'done' },
     ])
     render(<Runtime />)

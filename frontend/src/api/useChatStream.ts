@@ -1,5 +1,5 @@
 import { useCallback, useRef, useState } from 'react'
-import type { AgentEvent, AirlineContent } from '@airline-dsl/shared'
+import type { AgentEvent, AirlineContent, Intent } from '@airline-dsl/shared'
 import type { ChatAction, ChatMessage, Dispatch, RouteData } from '../state/chatReducer'
 
 const conversationByRoute = new Map<string, string>()
@@ -41,7 +41,7 @@ export function useChatStream(dispatch: Dispatch) {
         case 'route_generated':
           streamingStarted.current = false
           if (idRef.current) registerConversationRoute(ev.routeId, idRef.current)
-          dispatch({ type: 'route_generated', routeId: ev.routeId, content: ev.content, aiGenerated: ev.aiGenerated })
+          dispatch({ type: 'route_generated', routeId: ev.routeId, content: ev.content, intent: ev.intent, aiGenerated: ev.aiGenerated })
           break
         case 'error':
           streamingStarted.current = false
@@ -104,9 +104,9 @@ export function useChatStream(dispatch: Dispatch) {
         fetch(`/api/routes/${routeId}`),
       ])
       const conv = (await convRes.json()) as { messages: unknown[] }
-      const route = (await routeRes.json()) as { content: AirlineContent; aiGenerated: boolean }
+      const route = (await routeRes.json()) as { content: AirlineContent; intent: Intent; aiGenerated: boolean }
       const messages = toChatMessages(conv.messages)
-      const currentRoute: RouteData = { routeId, content: route.content, aiGenerated: route.aiGenerated }
+      const currentRoute: RouteData = { routeId, content: route.content, intent: route.intent, aiGenerated: route.aiGenerated }
       idRef.current = id
       streamingStarted.current = false
       setConversationId(id)

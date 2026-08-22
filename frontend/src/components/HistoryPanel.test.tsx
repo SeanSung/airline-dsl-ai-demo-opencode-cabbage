@@ -38,8 +38,8 @@ const fakeResubmit = async (_routeId: string, _setStatus: (s: SubmitStatus) => v
 function Harness() {
   const { state, dispatch } = useChat()
   const { loadConversation } = useChatStream(dispatch)
-  const onResume = async (routeId: string) => {
-    const cid = conversationForRoute(routeId)
+  const onResume = async (routeId: string, conversationId?: string) => {
+    const cid = conversationId ?? conversationForRoute(routeId)
     if (cid) await loadConversation(cid, routeId)
   }
   return (
@@ -83,9 +83,8 @@ describe('HistoryPanel', () => {
   })
 
   it('续编加载后 conversation 与 currentRoute 两 slice 同步回填，且可继续发送', async () => {
-    registerConversationRoute('r1', 'c1')
     const fetchFn = vi.fn((url: string) => {
-      if (url === '/api/routes') return Promise.resolve(new Response(JSON.stringify([makeSummary()]), { status: 200 }))
+      if (url === '/api/routes') return Promise.resolve(new Response(JSON.stringify([makeSummary({ conversationId: 'c1' })]), { status: 200 }))
       if (url === '/api/conversations/c1') {
         return Promise.resolve(
           new Response(

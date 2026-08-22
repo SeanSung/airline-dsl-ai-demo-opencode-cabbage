@@ -30,9 +30,12 @@ export function createRouteFromIntent(
   intent: Intent,
   options: CreateRouteFromIntentOptions,
 ): { route: Route; content: AirlineContent } {
-  const content = buildAirlineContent(intent, (it) =>
-    orbitWaypoints({ center: it.center, radiusM: it.radiusM, count: it.count ?? DEFAULT_COUNT }),
-  )
+  const positions = orbitWaypoints({
+    center: intent.center,
+    radiusM: intent.radiusM,
+    count: intent.count ?? DEFAULT_COUNT,
+  })
+  const content = buildAirlineContent(intent, positions)
   const airlineResult = validateAirlineContent(content, options.limits)
   if (!airlineResult.ok) {
     throw new AirlineValidationError(airlineResult.errors)
@@ -68,11 +71,12 @@ export function createGenerateRouteTool(options: GenerateRouteToolOptions): Agen
     execute: async (_toolCallId, params) => {
       const merged = mergeIntent(params as Partial<Intent>, draft)
       draft = merged
-      const validation = validateIntentParams(merged)
+      const withDefaults = applyDefaults(merged)
+      const validation = validateIntentParams(withDefaults)
       if (!validation.ok) {
         throw new MissingIntentParamsError(validation.missing)
       }
-      const intent = applyDefaults(merged as Intent)
+      const intent = withDefaults
       const { route, content } = createRouteFromIntent(intent, {
         store: options.store,
         limits: options.limits,

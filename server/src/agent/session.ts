@@ -188,7 +188,7 @@ export function createSessionManager(options: SessionManagerOptions): SessionMan
       aiGenerated: false,
     })
     onEvent({ type: 'text_delta', text: FALLBACK_GENERATED_TEXT })
-    onEvent({ type: 'route_generated', routeId: route.id, content, aiGenerated: false })
+    onEvent({ type: 'route_generated', routeId: route.id, content, intent, aiGenerated: false })
     onEvent({ type: 'done' })
   }
 
@@ -225,10 +225,18 @@ function toSharedEvents(event: AgentEvent, agent: Agent): SharedAgentEvent[] {
     case 'tool_execution_end': {
       if (event.toolName === GENERATE_ROUTE_TOOL && !event.isError) {
         const details = (event.result as { details?: unknown } | undefined)?.details as
-          | { routeId?: string; content?: AirlineContent }
+          | { routeId?: string; content?: AirlineContent; intent?: Intent }
           | undefined
-        if (details?.routeId && details?.content) {
-          return [{ type: 'route_generated', routeId: details.routeId, content: details.content, aiGenerated: true }]
+        if (details?.routeId && details?.content && details.intent) {
+          return [
+            {
+              type: 'route_generated',
+              routeId: details.routeId,
+              content: details.content,
+              intent: details.intent,
+              aiGenerated: true,
+            },
+          ]
         }
       }
       return []

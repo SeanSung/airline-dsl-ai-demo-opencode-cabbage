@@ -287,12 +287,14 @@ interface Intent {
 }
 ```
 
-**required 集合**：`['region', 'shape', 'center', 'radiusM', 'heightM', 'speedMps', 'actions']`。
+**required 集合（澄清触发项）**：`['shape', 'radiusM', 'heightM', 'speedMps', 'actions']`。
 
 设计依据（PRD §5.4 明确"缺关键参数（区域/高度/速度/动作）时反问补齐"）：
 - `radiusM` 是环绕几何的必需输入，缺失无法生成 → required。
 - `heightM`/`speedMps` 虽有契约默认值（120/15），但 PRD 明确列为关键参数 → required（契约默认值只作校验后填充的兜底，不豁免澄清）。
 - `actions` required 但**允许空数组**——用户说"就环绕一圈不动作"是合法需求；若用户完全没提动作，LLM 提取为空 → 触发反问"需要哪些动作？"。
+- `shape` required（MVP 固定枚举 'orbit'）。
+- `region`/`center` **不参与澄清**——有默认值（沧海校区/机巢锚点）由 `applyDefaults` 兜底，避免每次反问区域与坐标。
 - `count`/`rthAltitudeM`/`gimbalPitchDeg` 有合理默认值且非演示关键 → optional，用 `applyDefaults` 填充，不追问（减少提问轮次）。
 
 ### 6.2 多轮澄清实现路径（推荐：拦截式校验）
