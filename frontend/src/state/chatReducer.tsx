@@ -87,6 +87,7 @@ export function chatReducer(state: ChatState, action: ChatAction): ChatState {
     case 'reset':
       return createChatState()
     case 'hydrate':
+      counter += action.messages.length
       return { messages: action.messages, route: action.route, streaming: false, errorBar: null }
     default:
       return state
