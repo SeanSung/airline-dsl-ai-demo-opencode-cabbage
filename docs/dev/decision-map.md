@@ -40,3 +40,15 @@
 | dm-104-design-system | — | resolved | Grilling | 设计系统沉淀程度：一次性视觉整理 vs 可复用 token + 基础组件库 vs 完整系统+文档 | **沉淀 token + 基础组件库**：design token（颜色/字体/间距/圆角/阴影/状态色）+ shadcn 基础组件主题化 + 布局骨架与通用业务组件（地图浮层/对话气泡/状态徽章/提交条），支撑后续迭代；不产出独立规范文档/Storybook |
 | dm-105-layout | — | resolved | Grilling | 重设计后的布局骨架方向：地图为底+浮窗 / 左右两栏重构 / 三栏 / 对话为主 | **三栏：历史 · 对话 · 地图**：左窄栏历史/会话列表 + 中栏对话主区 + 右大栏 Cesium 地图；信息层级最清晰，对话与历史互不抢占；最佳 1920+ 大屏 |
 | dm-106-narrow | — | resolved | Grilling | 1366×768 笔记本下三栏如何降级：历史收起为图标栏/抽屉、对话栏缩窄、地图保持 | **历史收起为图标栏 + 抽屉**：历史栏默认收成 ~48px 图标窄条（hover tooltip），点击「历史」按钮展开为覆盖抽屉；对话栏与地图栏保持并排，地图始终为右侧主区域 |
+
+---
+
+## Tickets — impeccable 审计加固批次（2026-08-24）
+
+> 触发：`/impeccable audit` 对 frontend/ 产出 16/20 报告（1 P0 已在审计中修复、1 P1、3 P2、3 P3）。本批次把审计建议凝固为可验收需求。PRD：`docs/prd/frontend-impeccable-hardening.md`。
+
+| Slug | Blocked by | Status | Type | Question | Answer |
+|------|-----------|--------|------|----------|--------|
+| dm-201-audit-scope | — | resolved | Grilling | 审计加固批次的范围边界 | **只做审计报告列出的加固项**：a11y 语义（标题层级/输入标签/减弱动效/focus ring）、Cesium 空态基座、实体色对齐；不做视觉重设计、不改触控目标（PRODUCT.md 明确桌面-only）。P0 地图坍缩已在审计中修复（AppShell map-column 加 `flex flex-col`），本批次仅以回归验收锁定 |
+| dm-202-empty-map | — | resolved | Grilling | 生成航线前地图列呈现什么 | **开场即初始化 Cesium 地球基座**：Viewer 在 mount 时实例化并定位到机巢/沧海校区视角，route 到达只增删实体；无 TIANDITU_TOKEN 时退化为无瓦片暗色椭球，不得是纯黑矩形或空白。验收：空态下 `.cesium-widget canvas` 存在且高度=地图列高度，canvas 非纯黑（取中心像素亮度 > 阈值） |
+| dm-203-cesium-colors | — | resolved | Grilling | Cesium 实体色 #34d399/#38bdf8 如何处理 | **统一到设计系统主色**：机巢用航点绿 #2dbe7a、航线用航向青 #26b2f2；同步更新 cesium-entities.test.ts 断言。验收：detector 对 frontend/src 零 color advisory；测试断言颜色为 #2dbe7a/#26b2f2 |
