@@ -3,12 +3,13 @@ import { ChatPanel } from './components/ChatPanel'
 import { RouteMap } from './components/RouteMap'
 import { GBHSubmitBar } from './components/GBHSubmitBar'
 import { HistoryPanel, type SubmitStatus } from './components/HistoryPanel'
+import { AppShell } from './components/layout/AppShell'
 import { ChatProvider, useChat } from './state/chatReducer'
 import { useChatStream, conversationForRoute } from './api/useChatStream'
 
 function Workspace() {
   const { state, dispatch } = useChat()
-  const { loadConversation } = useChatStream(dispatch)
+  const { loadConversation, newConversation } = useChatStream(dispatch)
 
   const onResume = useCallback(
     async (routeId: string, conversationId?: string) => {
@@ -41,16 +42,17 @@ function Workspace() {
   }, [])
 
   return (
-    <div style={{ display: 'flex', height: '100vh', background: '#0b1220', color: '#e2e8f0' }}>
-      <div style={{ display: 'flex', flexDirection: 'column', width: 420 }}>
-        <ChatPanel />
-        <HistoryPanel onResume={onResume} onResubmit={onResubmit} />
-      </div>
-      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', position: 'relative' }}>
-        <RouteMap route={state.route} />
-        <GBHSubmitBar route={state.route} />
-      </div>
-    </div>
+    <AppShell
+      onNewConversation={() => newConversation()}
+      renderHistory={() => <HistoryPanel onResume={onResume} onResubmit={onResubmit} />}
+      chat={<ChatPanel />}
+      map={
+        <div className="flex h-full flex-col">
+          <RouteMap route={state.route} />
+          <GBHSubmitBar route={state.route} />
+        </div>
+      }
+    />
   )
 }
 
