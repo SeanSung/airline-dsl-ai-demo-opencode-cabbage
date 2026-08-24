@@ -13,7 +13,7 @@ description: 渐进式需求澄清 → PRD → Parent Issue
 
 ## 核心原则：验收可判定（Testable Acceptance）
 
-PRD 的验收标准是下游 `flow-design`（Testing Decisions）、`flow-tasks`（Acceptance Criteria）、`flow-tdd`、`flow-review`（final-verification 逐条验证）的输入源。因此**每一条验收标准都必须能让一个没参与需求讨论的人或 fresh agent 独立判定 pass/fail**。
+PRD 的验收标准是下游 `flow-design`（Testing Decisions）、`flow-tasks`（Acceptance Criteria）、`flow-tdd`（final-verification 逐条验证）的输入源。因此**每一条验收标准都必须能让一个没参与需求讨论的人或 fresh agent 独立判定 pass/fail**。
 
 一条合格的验收标准：
 
@@ -47,18 +47,18 @@ Outcome 可在 PRD 单列一节并显式标注"不作为阶段完成判据"；**
 
 在 `docs/dev/decision-map.md` 创建映射，追踪所有待决策问题（Ticket 含 slug / Blocked by / Status / Type / Question / Answer）。初始只创建 2–4 个前沿 Ticket，不试图穷举。
 
-Ticket 类型：Grilling（与用户对话澄清，按 `@grilling` 协议推进）/ Prototype（低保真验证）。
-Grilling 中需要查文档/代码/日志等 fact 时，派 sub-agent（如 `@researcher` 加载 `flow-research`）取回结论，不把可查的 fact 抛给用户，也不把 Research 单列为并列 Ticket 类型。
+Ticket 类型：Grilling（与用户对话澄清）/ Research（查文档）/ Prototype（低保真验证）。
+Research 型 Ticket → 派发 `@researcher` 加载 `flow-research` skill 产出调研文档后，据结论 resolved。
 
 ## Phase B：渐进式解决
 
-- 处理 Grilling 型 Ticket 时**加载 `@grilling` 协议**：把待决策问题映射成 design tree，按 frontier（prerequisites 已敲定的问题）逐轮推进；每轮可包含多个已 unblocked 的 Ticket，每个问题编号并给出推荐答案（格式见 grilling skill）。
-- **facts 不占用用户轮**：frontier 问题需要来自 environment 的 fact 时，派 sub-agent 去查；进行中的探索只阻塞其下游问题，不阻塞本轮其余 frontier。
-- **decisions 属于用户**：沿决策树分支深入，逐轮敲定。追问技巧："然后呢？"（第 3 层才触及本质）、"如果不做这个会怎样？"（验证优先级）、"**谁用什么判断做对了？**"（逼出可观察判据与判定方法）。
+- 每次只处理**一个**已解除阻塞的 Ticket；处理前 Claim（`Status: in-progress`）
+- Grilling 型：**一次只问一个问题**，每个问题给出推荐答案，沿决策树分支深入
+- 追问技巧："然后呢？"（第 3 层才触及本质）、"如果不做这个会怎样？"（验证优先级）、"**谁用什么判断做对了？**"（逼出可观察判据与判定方法）
 - **Answer 必须带判据**：凡涉及产品行为、交互、边界、失败处理的决策，Answer 末尾追加一句 `验收：<外部可观察到什么结果>；判定：<命令/阈值/断言/目检>`。选型类/纯技术取舍可不附，但要说明其不直接产生用户可见行为。
 - **验收本身就是前沿**：如果"做对了没有"无法回答，或答案仍是模糊词，**追加一个 Grilling Ticket 专门追问验收**（"完成后屏幕上/接口里会出现什么？""在哪个分辨率/数据下看？""出错时用户看到什么？"），直到可判定。
-- 解决后 `Status: resolved` 并记录 Answer；用户回答会重塑 design tree——敲定的决策把 frontier 向外推，检查是否有新问题浮现 → 追加 Ticket。
-- 循环直到 grilling 宣布 frontier 为空（design tree 每个分支都访问过、无默默假设），方可进入 Phase C。
+- 解决后 `Status: resolved` 并记录 Answer；检查是否有新问题浮现 → 追加 Ticket
+- 循环直到所有前沿 Ticket 已 resolved
 
 ## Phase C：凝固为 PRD
 
@@ -128,7 +128,7 @@ gh issue create --title "<英文功能标题>" --body "<目标 + 验收标准>"
 
 ### Procedure
 1. 锚定核心问题，创建 Decision Map
-2. 按 `@grilling` 协议渐进式解决所有前沿 Ticket（Grilling 轮次中需要的 facts 派 sub-agent 查；必要时插 Prototype 低保真验证）；产品行为类 Answer 必须附可判定判据，不够具体时追加验收 Ticket
+2. 渐进式解决所有前沿 Ticket（Grilling / Research / Prototype）；产品行为类 Answer 必须附可判定判据，不够具体时追加验收 Ticket
 3. 迷雾推至足够远 → 凝固为 PRD，写入独立「验收标准」章节
 4. 执行 AC 质量自检（6 项）；未通过则回第 2 步补追验收，不得进入下一步
 5. 记录领域术语到 CONTEXT.md
@@ -151,7 +151,7 @@ gh issue create --title "<英文功能标题>" --body "<目标 + 验收标准>"
 
 ### Prohibited Actions
 - 不跳过 Phase A 和 Phase B 直接输出 PRD
-- 不把可自行查到的 fact 抛给用户；不跳过 frontier 顺序问依赖未定的问题
+- 不一次问多个问题
 - 不创建重复的 Parent Issue（复用已有编号）
 - 不写无判定方法的验收标准，不用模糊词伪装可判定
 - 不把 Outcome/业务结果指标混作验收标准或完成 checklist
