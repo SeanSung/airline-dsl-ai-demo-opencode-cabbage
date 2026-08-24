@@ -17,7 +17,11 @@ export function RouteMap({ route }: { route: RouteData | null }) {
   const [info, setInfo] = useState<string | null>(null)
 
   useEffect(() => {
-    if (!route || !containerRef.current) return
+    if (!route || !containerRef.current) {
+      setBadge(null)
+      setInfo(null)
+      return
+    }
     const entities = buildCesiumEntities(route.content, route.aiGenerated)
     const badgeEntity = entities.find((e) => e.kind === 'badge')
     const infoEntity = entities.find((e) => e.kind === 'info')

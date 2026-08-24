@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { AlertCircle, ChevronRight, History as HistoryIcon, Loader2 } from 'lucide-react'
 import { cn } from '@/lib/cn'
 import { RouteListItem } from './RouteListItem'
@@ -38,7 +38,7 @@ export function HistoryPanel({ onResume, onResubmit }: HistoryPanelProps) {
   const [loadingList, setLoadingList] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
-  const refresh = async () => {
+  const refresh = useCallback(async () => {
     setLoadingList(true)
     setError(null)
     try {
@@ -50,11 +50,11 @@ export function HistoryPanel({ onResume, onResubmit }: HistoryPanelProps) {
     } finally {
       setLoadingList(false)
     }
-  }
+  }, [])
 
   useEffect(() => {
     if (open) void refresh()
-  }, [open])
+  }, [open, refresh])
 
   const handleResubmit = async (routeId: string) => {
     const setStatus = (s: SubmitStatus) => setStatuses((prev) => ({ ...prev, [routeId]: s }))

@@ -80,4 +80,25 @@ describe('GbhPanel', () => {
     expect(statusText).not.toContain('"')
     vi.unstubAllGlobals()
   })
+
+  it('切换 route 后重置提交状态，不误显上一条航线结果', async () => {
+    vi.stubGlobal(
+      'fetch',
+      vi.fn(() =>
+        Promise.resolve(
+          new Response(JSON.stringify({ status: 'ok', gbhRouteId: 'gbh_old' }), { status: 200 }),
+        ),
+      ),
+    )
+    const { rerender } = render(<GbhPanel route={makeRoute('r1')} />)
+    fireEvent.click(screen.getByTestId('gbh-submit'))
+    await waitFor(() => expect(screen.getByTestId('gbh-status')).toHaveTextContent('gbh_old'))
+
+    // 切换到新航线：旧的成功态必须清空，按钮恢复可点
+    rerender(<GbhPanel route={makeRoute('r2')} />)
+    expect(screen.queryByTestId('gbh-status')).toBeNull()
+    expect(screen.getByTestId('gbh-submit')).not.toBeDisabled()
+    expect(screen.getByTestId('gbh-submit')).toHaveTextContent('一键提交 GBH')
+    vi.unstubAllGlobals()
+  })
 })

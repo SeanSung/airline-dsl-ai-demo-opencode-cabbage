@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { CheckCircle2, Loader2, Plane, Send } from 'lucide-react'
 import type { RouteData } from '../../state/chatReducer'
 import { Button } from '../ui/button'
@@ -19,6 +19,11 @@ export type GbhSubmitStatus =
  */
 export function GbhPanel({ route }: { route: RouteData | null }) {
   const [status, setStatus] = useState<GbhSubmitStatus>({ state: 'idle' })
+
+  // 切换航线或清空时重置提交状态，避免新航线误显上一条航线的成功/失败结果。
+  useEffect(() => {
+    setStatus({ state: 'idle' })
+  }, [route?.routeId])
 
   const submit = async (): Promise<void> => {
     if (!route || status.state === 'loading') return
