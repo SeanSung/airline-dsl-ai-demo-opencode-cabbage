@@ -1,8 +1,8 @@
 import { describe, expect, it, vi } from 'vitest'
 import { fireEvent, render, screen, waitFor } from '@testing-library/react'
 import type { AirlineContent } from '@airline-dsl/shared'
-import { ChatProvider, useChat } from '../state/chatReducer'
-import { useChatStream, registerConversationRoute, conversationForRoute } from '../api/useChatStream'
+import { ChatProvider, useChat } from '../../state/chatReducer'
+import { useChatStream, registerConversationRoute, conversationForRoute } from '../../api/useChatStream'
 import { HistoryPanel, type SubmitStatus, type RouteSummary } from './HistoryPanel'
 
 function makeContent(name: string): AirlineContent {
