@@ -39,3 +39,18 @@
     height: 100%;
   }
 }
+
+/*
+ * 减弱动效（prefers-reduced-motion: reduce）：只关闭本应用施加的旋转/滑入动画，
+ * 保留 aria-busy / role=status 等状态文字与层级关系。
+ * 不使用全局 `*{animation-duration:.01ms!important}` 一刀切，以免抹掉所有反馈。
+ */
+@media (prefers-reduced-motion: reduce) {
+  .animate-spin {
+    animation: none !important;
+  }
+  .animate-in,
+  .animate-out {
+    animation: none !important;
+  }
+}

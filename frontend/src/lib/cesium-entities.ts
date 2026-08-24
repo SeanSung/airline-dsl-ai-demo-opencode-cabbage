@@ -49,9 +49,9 @@ export function buildCesiumEntities(content: AirlineContent, aiGenerated: boolea
     icons: actionIcons(wp),
   }))
   return [
-    { id: 'nest', kind: 'nest', lng: takeoff.lng, lat: takeoff.lat, height: takeoff.altitude, label: '机巢', color: '#34d399' },
+    { id: 'nest', kind: 'nest', lng: takeoff.lng, lat: takeoff.lat, height: takeoff.altitude, label: '机巢', color: '#2dbe7a' },
     ...waypointEntities,
-    { id: 'route', kind: 'route', positions, color: '#38bdf8', width: 3 },
+    { id: 'route', kind: 'route', positions, color: '#26b2f2', width: 3 },
     { id: 'badge', kind: 'badge', text: aiGenerated ? 'AI 生成' : '非 AI 生成' },
     {
       id: 'info',

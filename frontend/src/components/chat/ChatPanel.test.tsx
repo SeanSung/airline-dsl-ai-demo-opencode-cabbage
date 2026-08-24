@@ -136,4 +136,22 @@ describe('ChatPanel', () => {
     // 对话栏无 header
     expect(screen.queryByTestId('topbar')).not.toBeInTheDocument()
   })
+
+  it('输入框有可访问名称 aria-label="输入航线需求"', async () => {
+    renderPanel([{ type: 'done' }])
+    const input = screen.getByPlaceholderText('输入需求…') as HTMLInputElement
+    expect(input.getAttribute('aria-label')).toBe('输入航线需求')
+  })
+
+  it('错误条出现时输入框 aria-invalid=true 且 aria-describedby 指向错误条', async () => {
+    renderPanel([{ type: 'error', code: 'height_too_high', message: '高度 700m 超出上限 500m' }])
+    fireEvent.change(screen.getByPlaceholderText('输入需求…'), { target: { value: '环绕沧海一圈' } })
+    fireEvent.click(screen.getByText('发送'))
+    await waitFor(() => expect(screen.getByTestId('error-bar')).toBeInTheDocument())
+    const input = screen.getByPlaceholderText('输入需求…') as HTMLInputElement
+    expect(input.getAttribute('aria-invalid')).toBe('true')
+    const describedBy = input.getAttribute('aria-describedby')
+    expect(describedBy).toBe('chat-error-bar')
+    expect(document.getElementById(describedBy!)).toBe(screen.getByTestId('error-bar'))
+  })
 })

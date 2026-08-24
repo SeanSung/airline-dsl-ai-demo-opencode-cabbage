@@ -36,6 +36,7 @@ export function ChatPanel() {
 
   return (
     <section className="flex h-full min-h-0 flex-col bg-background text-foreground">
+      <h2 className="sr-only">对话</h2>
       {/* 消息列表区：可滚动 */}
       <div className="min-h-0 flex-1 overflow-y-auto p-3" data-testid="message-list">
         {state.messages.length === 0 && !state.streaming && (
@@ -47,7 +48,7 @@ export function ChatPanel() {
                 type="button"
                 data-testid="suggestion"
                 onClick={() => submit(s)}
-                className="rounded-full border border-border bg-card px-4 py-2 text-left text-sm text-foreground transition-colors hover:border-primary/50 hover:bg-accent hover:text-accent-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                className="rounded-full border border-border bg-card px-4 py-2 text-left text-sm text-foreground transition-colors hover:border-primary/50 hover:bg-accent hover:text-accent-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
               >
                 {s}
               </button>
@@ -115,6 +116,7 @@ export function ChatPanel() {
 
       {state.errorBar && (
         <div
+          id="chat-error-bar"
           data-testid="error-bar"
           role="alert"
           className="mx-3 mb-2 rounded-md border border-destructive/30 bg-destructive-solid/15 px-3 py-2 text-xs text-destructive"
@@ -134,10 +136,13 @@ export function ChatPanel() {
           value={draft}
           onChange={(e) => setDraft(e.target.value)}
           placeholder="输入需求…"
+          aria-label="输入航线需求"
+          aria-invalid={state.errorBar ? 'true' : undefined}
+          aria-describedby={state.errorBar ? 'chat-error-bar' : undefined}
           className={cn(
             'h-9 flex-1 rounded-md border border-input bg-background px-3 text-sm text-foreground',
             'placeholder:text-muted-foreground',
-            'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring',
+            'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background',
           )}
         />
         <Button type="submit" disabled={state.streaming} aria-label="发送">

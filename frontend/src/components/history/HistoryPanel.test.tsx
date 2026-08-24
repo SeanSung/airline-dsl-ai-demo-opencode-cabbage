@@ -181,4 +181,9 @@ describe('HistoryPanel', () => {
     fireEvent.click(screen.getByTestId('resubmit-btn'))
     await waitFor(() => expect(screen.getByTestId('resubmit-status')).toHaveTextContent('平台校验失败'))
   })
+
+  it('面板含语义 h2「历史航线」', () => {
+    render(<HistoryPanel onResume={async () => {}} onResubmit={fakeResubmit} />)
+    expect(screen.getByRole('heading', { level: 2, name: '历史航线' })).toBeInTheDocument()
+  })
 })

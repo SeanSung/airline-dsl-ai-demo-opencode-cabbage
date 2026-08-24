@@ -21,7 +21,7 @@ export function RouteCard({ route }: { route: RouteData }) {
         <RouteIcon className="mt-0.5 h-4 w-4 shrink-0 text-primary" aria-hidden />
         <div className="min-w-0 flex-1">
           <div className="flex items-center gap-2">
-            <span className="truncate text-sm font-semibold">{content.name}</span>
+            <h3 className="truncate text-sm font-semibold">{content.name}</h3>
             {!route.aiGenerated && (
               <span
                 data-testid="not-ai-badge"

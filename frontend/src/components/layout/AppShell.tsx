@@ -21,7 +21,7 @@ function TopBar({ onNewConversation }: TopBarProps) {
       className="flex h-12 shrink-0 items-center gap-2 border-b border-border bg-card px-4"
     >
       <Plane className="h-5 w-5 text-primary" aria-hidden />
-      <span className="text-sm font-semibold">航线编辑 Agent</span>
+      <h1 className="text-sm font-semibold">航线编辑 Agent</h1>
       <Button
         size="sm"
         variant="outline"

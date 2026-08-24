@@ -54,6 +54,7 @@ export function GbhPanel({ route }: { route: RouteData | null }) {
   return (
     // gbh-bar 为面板根 testid；absolute 定位浮在地图右下角，宽度受控避免大面积遮挡。
     <div data-testid="gbh-bar" className="absolute bottom-3 right-3 z-10 w-72 max-w-[calc(100%-1.5rem)]">
+      <h2 className="sr-only">提交 GBH</h2>
       <MapOverlayCard
         title={
           <span className="flex items-center gap-1.5">

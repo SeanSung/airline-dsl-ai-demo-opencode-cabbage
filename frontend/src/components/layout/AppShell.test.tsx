@@ -74,4 +74,12 @@ describe('AppShell 三栏骨架', () => {
     // 全树历史内容仅一个实例
     expect(screen.getAllByTestId('history-content')).toHaveLength(1)
   })
+
+  it('顶栏含唯一 h1 且可访问名称为"航线编辑 Agent"', () => {
+    setWide(true)
+    renderShell()
+    const h1 = screen.getAllByRole('heading', { level: 1 })
+    expect(h1).toHaveLength(1)
+    expect(h1[0]).toHaveTextContent('航线编辑 Agent')
+  })
 })

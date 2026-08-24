@@ -40,6 +40,11 @@ describe('GbhPanel', () => {
     expect(screen.getByTestId('gbh-bar')).toBeInTheDocument()
   })
 
+  it('面板含语义 h2「提交 GBH」', () => {
+    render(<GbhPanel route={null} />)
+    expect(screen.getByRole('heading', { level: 2, name: '提交 GBH' })).toBeInTheDocument()
+  })
+
   it('提交中显示 loading 文案，完成后显示验证通过', async () => {
     let resolvePromise: (r: Response) => void = () => {}
     const fetchFn = vi.fn(() => new Promise<Response>((resolve) => { resolvePromise = resolve }))
