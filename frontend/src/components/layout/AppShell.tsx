@@ -106,7 +106,7 @@ export function AppShell({ renderHistory, chat, map, onNewConversation }: AppShe
           {chat}
         </section>
 
-        <section data-testid="map-column" className="relative min-h-0 min-w-0">
+        <section data-testid="map-column" className="relative flex min-h-0 min-w-0 flex-col">
           {map}
         </section>
       </div>

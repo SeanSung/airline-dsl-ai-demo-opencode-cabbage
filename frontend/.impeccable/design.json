@@ -1,0 +1,190 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-08-24T00:00:00Z",
+  "title": "Design System: 航线编辑 Agent",
+  "extensions": {
+    "colorMeta": {
+      "primary-cyan": {
+        "role": "primary",
+        "displayName": "航向青",
+        "canonical": "#26b2f2",
+        "tonalRamp": ["#043348", "#075578", "#0a76a9", "#0d98d9", "#26b2f2", "#56c3f5", "#95d9f9", "#d8f1fd"]
+      },
+      "accent-deep": {
+        "role": "secondary",
+        "displayName": "深青面",
+        "canonical": "#11465f",
+        "tonalRamp": ["#0b3041", "#13506c", "#1b7098", "#2290c3", "#3caadd", "#67bde4", "#a0d5ee", "#dcf0f9"]
+      },
+      "success-waypoint": {
+        "role": "tertiary",
+        "displayName": "航点绿",
+        "canonical": "#2dbe7a",
+        "tonalRamp": ["#0f3e28", "#186742", "#22915d", "#2cba77", "#45d391", "#6edda9", "#a4eac9", "#def7eb"]
+      },
+      "warning-fallback": {
+        "role": "tertiary",
+        "displayName": "降级琥珀",
+        "canonical": "#f6a823",
+        "tonalRamp": ["#493003", "#7a4f05", "#ab6f07", "#dc8f09", "#f6a823", "#f8bc54", "#fbd593", "#fdf0d8"]
+      },
+      "danger-solid": {
+        "role": "tertiary",
+        "displayName": "危险实底",
+        "canonical": "#d32222",
+        "tonalRamp": ["#420b0b", "#6e1212", "#9a1919", "#c52020", "#df3a3a", "#e66565", "#ef9f9f", "#f9dcdc"]
+      },
+      "bg-void": {
+        "role": "neutral",
+        "displayName": "虚空底",
+        "canonical": "#0b111e"
+      },
+      "surface-card": {
+        "role": "neutral",
+        "displayName": "卡片面",
+        "canonical": "#121a2b"
+      },
+      "surface-popover": {
+        "role": "neutral",
+        "displayName": "弹层面",
+        "canonical": "#0e1525"
+      },
+      "border-soft": {
+        "role": "neutral",
+        "displayName": "柔边框",
+        "canonical": "#283248"
+      },
+      "text-muted": {
+        "role": "neutral",
+        "displayName": "次文字",
+        "canonical": "#97a3b4"
+      }
+    },
+    "typographyMeta": {
+      "body": { "displayName": "Body", "purpose": "对话气泡、按钮、面板正文；主工作字号 14px。" },
+      "title": { "displayName": "Title", "purpose": "顶栏应用名、卡片与航线标题、Sheet 标题。" },
+      "metric": { "displayName": "Metric", "purpose": "航线元信息、辅助说明、GBH 结果等 12px 读数。" },
+      "label": { "displayName": "Label", "purpose": "状态徽章、标签、非 AI 标记等 11px 强调小字。" }
+    },
+    "shadows": [
+      { "name": "shadow-sm", "value": "0 1px 2px rgba(0,0,0,0.3)", "purpose": "卡片与聊天气泡在深底上的轻微分离。" },
+      { "name": "shadow-md", "value": "0 4px 12px rgba(0,0,0,0.35)", "purpose": "地图角标徽章。" },
+      { "name": "shadow-lg", "value": "0 8px 24px rgba(0,0,0,0.45)", "purpose": "Cesium 浮卡与 Sheet 抽屉的浮起阴影。" }
+    ],
+    "motion": [
+      { "name": "ease-colors", "value": "transition-colors 150ms ease", "purpose": "按钮、列表项 hover/focus 的默认颜色过渡。" },
+      { "name": "sheet-in", "value": "cubic-bezier(0.16,1,0.3,1) 500ms", "purpose": "Sheet 抽屉滑入；滑出 300ms。" }
+    ],
+    "breakpoints": [
+      { "name": "wide", "value": "1440px" },
+      { "name": "laptop-floor", "value": "1366px" }
+    ]
+  },
+  "components": [
+    {
+      "name": "Primary Button",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "主操作按钮：发送、提交 GBH。实底航向青，虚空底文字。",
+      "html": "<button class=\"ds-btn-primary\"><svg class=\"ds-ico\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><line x1=\"22\" y1=\"2\" x2=\"11\" y2=\"13\"></line><polygon points=\"22 2 15 22 11 13 2 9 22 2\"></polygon></svg>发送</button>",
+      "css": ".ds-btn-primary { display:inline-flex; align-items:center; justify-content:center; gap:8px; height:36px; padding:8px 16px; background:var(--color-primary,#26b2f2); color:var(--color-primary-foreground,#0b111e); font-family:inherit; font-size:14px; font-weight:500; border:none; border-radius:8px; cursor:pointer; transition:background .15s ease; } .ds-btn-primary:hover { background:rgba(38,178,242,0.9); } .ds-btn-primary:focus-visible { outline:none; box-shadow:0 0 0 2px var(--color-ring,#26b2f2); } .ds-btn-primary:disabled { opacity:0.5; cursor:not-allowed; } .ds-ico { width:16px; height:16px; }"
+    },
+    {
+      "name": "Outline Button",
+      "kind": "button",
+      "refersTo": "button-outline",
+      "description": "次级动作：新对话、再次提交 GBH。透明底 + 柔边框，hover 转深青面。",
+      "html": "<button class=\"ds-btn-outline\"><svg class=\"ds-ico\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><line x1=\"12\" y1=\"5\" x2=\"12\" y2=\"19\"></line><line x1=\"5\" y1=\"12\" x2=\"19\" y2=\"12\"></line></svg>新对话</button>",
+      "css": ".ds-btn-outline { display:inline-flex; align-items:center; justify-content:center; gap:8px; height:36px; padding:8px 16px; background:transparent; color:var(--color-foreground,#f3f5f7); font-family:inherit; font-size:14px; font-weight:500; border:1px solid var(--color-border,#283248); border-radius:8px; cursor:pointer; transition:background .15s ease,color .15s ease,border-color .15s ease; } .ds-btn-outline:hover { background:var(--color-accent,#11465f); color:var(--color-accent-foreground,#9fddf9); } .ds-btn-outline:focus-visible { outline:none; box-shadow:0 0 0 2px var(--color-ring,#26b2f2); }"
+    },
+    {
+      "name": "Ghost Icon Button",
+      "kind": "button",
+      "refersTo": "button-ghost",
+      "description": "无描边无底的图标按钮，用于历史栏触发、续编等低调动作。",
+      "html": "<button class=\"ds-btn-ghost\" aria-label=\"打开历史航线\"><svg class=\"ds-ico-lg\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M3 12a9 9 0 1 0 3-6.7L3 8\"></path><path d=\"M3 3v5h5\"></path><path d=\"M12 7v5l4 2\"></path></svg></button>",
+      "css": ".ds-btn-ghost { display:inline-flex; align-items:center; justify-content:center; height:36px; width:36px; background:transparent; color:var(--color-foreground,#f3f5f7); border:none; border-radius:8px; cursor:pointer; transition:background .15s ease,color .15s ease; } .ds-btn-ghost:hover { background:var(--color-accent,#11465f); color:var(--color-accent-foreground,#9fddf9); } .ds-btn-ghost:focus-visible { outline:none; box-shadow:0 0 0 2px var(--color-ring,#26b2f2); } .ds-ico-lg { width:20px; height:20px; }"
+    },
+    {
+      "name": "Text Input",
+      "kind": "input",
+      "refersTo": "input-field",
+      "description": "对话输入框：虚空底、柔描边、8px 圆角、青色 focus ring。",
+      "html": "<input class=\"ds-input\" placeholder=\"输入需求…\" />",
+      "css": ".ds-input { height:36px; width:100%; padding:0 12px; background:var(--color-background,#0b111e); color:var(--color-foreground,#f3f5f7); font-family:inherit; font-size:14px; border:1px solid var(--color-input,#252d41); border-radius:8px; } .ds-input::placeholder { color:var(--color-muted-foreground,#97a3b4); } .ds-input:focus-visible { outline:none; box-shadow:0 0 0 2px var(--color-ring,#26b2f2); border-color:transparent; }"
+    },
+    {
+      "name": "Surface Card",
+      "kind": "card",
+      "refersTo": "card-surface",
+      "description": "标准卡片/列表项：卡片面 + 柔边框 + 12px 圆角 + 微阴影。",
+      "html": "<div class=\"ds-card\"><div class=\"ds-card-title\">环绕沧海校区巡检</div><div class=\"ds-card-meta\">区域 沧海校区 · 半径 300m · 高度 120m</div></div>",
+      "css": ".ds-card { background:var(--color-card,#121a2b); color:var(--color-card-foreground,#f3f5f7); border:1px solid var(--color-border,#283248); border-radius:12px; padding:12px; box-shadow:0 1px 2px rgba(0,0,0,0.3); } .ds-card-title { font-size:14px; font-weight:600; } .ds-card-meta { margin-top:4px; font-size:12px; line-height:1.6; color:var(--color-muted-foreground,#97a3b4); }"
+    },
+    {
+      "name": "Status Badge",
+      "kind": "chip",
+      "refersTo": "badge-status",
+      "description": "药丸状态徽章：草稿/已验证/失败三色，颜色与文案成对。",
+      "html": "<span class=\"ds-badge ds-badge-success\">已验证</span>",
+      "css": ".ds-badge { display:inline-flex; align-items:center; padding:2px 8px; font-size:11px; font-weight:500; border-radius:9999px; } .ds-badge-success { background:var(--color-success,#2dbe7a); color:var(--color-success-foreground,#0b111e); }"
+    },
+    {
+      "name": "User Chat Bubble",
+      "kind": "custom",
+      "refersTo": "bubble-user",
+      "description": "用户消息气泡：右对齐实底青色，右下角收小圆角。",
+      "html": "<div class=\"ds-bubble-row ds-bubble-row-user\"><div class=\"ds-bubble ds-bubble-user\">环绕沧海校区巡检一圈，高度 120 米</div></div>",
+      "css": ".ds-bubble-row { display:flex; } .ds-bubble-row-user { justify-content:flex-end; } .ds-bubble { max-width:85%; padding:8px 14px; font-size:14px; line-height:1.5; white-space:pre-wrap; box-shadow:0 1px 2px rgba(0,0,0,0.3); } .ds-bubble-user { background:var(--color-primary,#26b2f2); color:var(--color-primary-foreground,#0b111e); border-radius:16px 16px 4px 16px; }"
+    },
+    {
+      "name": "Assistant Chat Bubble",
+      "kind": "custom",
+      "refersTo": "bubble-assistant",
+      "description": "助手消息气泡：左对齐卡片面 + 边框，左下角收小圆角。",
+      "html": "<div class=\"ds-bubble-row\"><div class=\"ds-bubble ds-bubble-assistant\">好的，我将以机巢为圆心生成环绕航线，半径 300 米、高度 120 米。</div></div>",
+      "css": ".ds-bubble-row { display:flex; } .ds-bubble { max-width:85%; padding:8px 14px; font-size:14px; line-height:1.5; white-space:pre-wrap; box-shadow:0 1px 2px rgba(0,0,0,0.3); } .ds-bubble-assistant { background:var(--color-card,#121a2b); color:var(--color-foreground,#f3f5f7); border:1px solid var(--color-border,#283248); border-radius:16px 16px 16px 4px; }"
+    },
+    {
+      "name": "Map Overlay Card",
+      "kind": "custom",
+      "description": "Cesium 地图上的可折叠浮卡：深色半透明 + backdrop-blur + 大阴影，覆盖受控。",
+      "html": "<div class=\"ds-overlay\"><div class=\"ds-overlay-head\"><svg class=\"ds-ico\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M17.8 19.2 16 11l3.5-3.5C21 6 21.5 4 21 3c-1-.5-3 0-4.5 1.5L13 8 4.8 6.2c-.5-.1-.9.1-1.1.5l-.3.5c-.2.5-.1 1 .3 1.3L9 12l-2 3H4l-1 1 3 2 2 3 1-1v-3l3-2 3.5 5.3c.3.4.8.5 1.3.3l.5-.2c.4-.3.6-.7.5-1.2z\"></path></svg>提交 GBH</div><button class=\"ds-btn-primary ds-btn-block\">一键提交 GBH</button></div>",
+      "css": ".ds-overlay { width:288px; background:rgba(18,26,43,0.95); color:var(--color-card-foreground,#f3f5f7); border:1px solid var(--color-border,#283248); border-radius:12px; box-shadow:0 8px 24px rgba(0,0,0,0.45); overflow:hidden; backdrop-filter:blur(8px); } .ds-overlay-head { display:flex; align-items:center; gap:6px; padding:8px 12px; border-bottom:1px solid var(--color-border,#283248); font-size:14px; font-weight:500; } .ds-overlay-head .ds-ico { width:14px; height:14px; color:var(--color-primary,#26b2f2); } .ds-overlay > *:not(head) { margin:12px; } .ds-btn-block { width:calc(100% - 24px); margin:10px 12px 12px; } .ds-btn-primary { display:inline-flex; align-items:center; justify-content:center; height:32px; padding:6px 12px; background:var(--color-primary,#26b2f2); color:var(--color-primary-foreground,#0b111e); font-family:inherit; font-size:14px; font-weight:500; border:none; border-radius:8px; cursor:pointer; }"
+    }
+  ],
+  "narrative": {
+    "northStar": "飞行控制台 (Flight Console)",
+    "overview": "界面是一台无人机地面控制站的飞行控制台：冷调深蓝面板承托读数，青色如同雷达扫描光，标记唯一的「航向」——对话与航线。操作员（演示者）站在投影前，需要一眼读到状态、一下找到动作、一次提交验证。系统用克制的色调分层代替厚重阴影制造纵深：背景、卡片、弹层是三级深面，1px 低对比边框界定边界，只有浮在地图上的卡片和抽屉才抬起阴影。青色（primary）是稀缺的注意力货币，只给主操作、当前航向与关键标识。",
+    "keyCharacteristics": [
+      "深色三级表面（void → card → popover）+ 1px 柔边框，阴影仅用于浮层。",
+      "青色单一主色，稀缺使用，承担主操作与品牌辉光。",
+      "紧凑仪器密度（14px 正文、36px 控件、12px 间距），圆角中带柔和（卡片 12px、气泡 16px）。",
+      "地图即舞台：浮卡玻璃质感、覆盖受控，不遮挡航线主体。",
+      "四态可辨（生成中/成功/失败/降级），状态不靠颜色单独编码。"
+    ],
+    "rules": [
+      { "name": "The One Voice Rule", "body": "青色主色出任意一屏的面积应保持稀缺；它的稀有度本身就是航向。中性表面和边框承担绝大部分面积。", "section": "colors" },
+      { "name": "The Status Pair Rule", "body": "成功/降级/危险状态必须颜色 + 图标 + 文案三者至少成对出现，绝不以颜色作为唯一编码。", "section": "colors" },
+      { "name": "The No White Box Rule", "body": "任何浮在 Cesium 地图上的卡片使用深色半透明卡片面 + 模糊，禁止不透明白底割裂地图。", "section": "colors" },
+      { "name": "The 14px Floor Rule", "body": "投影场景下工作字号不低于 12px；徽章标签可用 11px，但须 font-weight 500 且不承载长句。", "section": "typography" },
+      { "name": "The Flat-At-Rest Rule", "body": "表面静止时平整，靠背景色阶 + 边框区分层级；阴影是状态（浮起、悬停、抽屉）的响应，不是默认装饰。", "section": "elevation" }
+    ],
+    "dos": [
+      "Do 所有颜色、间距、圆角、阴影走 theme.css 的 design token；.tsx 中不写颜色字面量。",
+      "Do 用三级深面 + 1px 边框做层级，只给地图浮卡和抽屉用 shadow-lg。",
+      "Do 在任何成功/失败/降级状态同时给出颜色、Lucide 图标和中文文案三者中的至少两个。",
+      "Do 浮在 Cesium 上的卡片用 MapOverlayCard，宽度受控，不遮挡航线主体。",
+      "Do 控件保持 36px 高、14px 正文、rounded-md；卡片/气泡用 12–16px 圆角。",
+      "Do 焦点用统一 focus-visible:ring-2 ring-ring。"
+    ],
+    "donts": [
+      "Don't 在 frontend/src 业务组件里写硬编码颜色或承载主题值的内联 style={{}}。",
+      "Don't 引入第二套 UI 库、CSS-in-JS，或实现亮色主题切换。",
+      "Don't 用青色填充大面积表面，也不要给中性面板加发光/霓虹边。",
+      "Don't 用底部通栏浮条遮挡地图，改用角落受控浮卡。",
+      "Don't 把原始 JSON/堆栈直接显示为错误；用 formatGbhError 转人类可读文案。",
+      "Don't 把规则兜底结果伪装成 AI 生成；必须显示非 AI 生成徽章。"
+    ]
+  }
+}
