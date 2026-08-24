@@ -1,14 +1,15 @@
 # Decision Map — 基于 DSL 航线编辑脚本的大疆航线编辑 Agent
 
-> 需求澄清决策映射（flow-requirements）。初始前沿 Ticket 见下，逐个解决后收拢。✅ 全部前沿已 resolved（2026-08-21），PRD 已生成：`docs/prd/airline-dsl-edit-agent.md`
+> 需求澄清决策映射（flow-requirements）。航线编辑 Agent 批次（dm-001~dm-012）已于 2026-08-21 全部 resolved，PRD：`docs/prd/airline-dsl-edit-agent.md`。2026-08-24 新增 **UI 设计批次（dm-101 起）**：用户反馈"系统没有 UI 设计、UI 混乱"。✅ UI 批次全部前沿已 resolved，PRD：`docs/prd/frontend-ui-redesign.md`。
 
 ## 背景事实（已调研）
 
 - 参考来源 1：`~/project/yuchen-smart-ops/` — 一网统飞低空综合作业平台，含航线规划模块（Cesium 3D 打点编辑、AirlineContent、GBH 模拟飞行下发）
 - 参考来源 2：`~/project/airline-dsl-ai-demo/` — 同想法的先行实现（Go+React+Cesium）。**用户决策（dm-001）：本方案完全独立创新，不以先行实现为输入**，仅作存在性背景记录
-- 当前项目（本仓库 opencode-cabbage）：空仓库，用 opencode + cabbage 插件从零起步
+- 当前项目（本仓库 opencode-cabbage）：用 opencode + cabbage 插件从零起步
+- UI 现状（2026-08-24 侦察）：前端 React19 + Vite + 原生 Cesium；所有样式为 inline `style={{}}`，无设计 token / CSS 框架 / 组件库；布局为左栏固定 420px（ChatPanel 上、HistoryPanel 下堆叠）+ 右栏（RouteMap 满铺、GBHSubmitBar 浮于底部）。
 
-## Tickets
+## Tickets — 航线编辑 Agent 批次（已 resolved）
 
 | Slug | Blocked by | Status | Type | Question | Answer |
 |------|-----------|--------|------|----------|--------|
@@ -23,4 +24,19 @@
 | dm-009-geometry | — | resolved | Grilling | 航线几何形状 MVP 范围（环绕/直线/之字扫掠等模板） | **MVP 仅环绕**：聚焦环绕巡检单场景演示，直线/之字后续迭代 |
 | dm-010-failure | — | resolved | Grilling | 生成/校验失败处理策略（agent 引导改正 vs 静默回退） | **引导改正 + 明示降级**：错误定位到字段并引导修正；LLM 不可用时规则降级兜底且明确标注"非 AI 生成" |
 | dm-011-history | — | resolved | Grilling | 航线持久化与历史管理（落库、列表、加载续编） | **落库 + 历史列表 + 加载续编**：SQLite 落库，历史列表可查看/加载续编/再次提交 GBH |
-| dm-012-pi-agent | — | resolved | Research | agent server 技术选型是否采用 pi agent toolkit（earendil-works/pi） | **方案 A：直接采用 pi npm 包**：`@earendil-works/pi-ai`（统一多 provider LLM API）+ `@earendil-works/pi-agent-core`（agent runtime，agent loop + tool 分发 + 事件流 + 多轮状态）。**后端全 TS 单栈**：几何生成/GBH 提交/SQLite/HTTP API 全部 TS 实现，与前端同语言。不引入 experimental 的 protocol/server/client。详见 `docs/dev/research/pi-agent-toolkit.md` |
+| dm-012-pi-agent | — | resolved | Research | agent server 技术选型是否采用 pi agent toolkit（earendil-works/pi） | **方案 A：直接采用 pi npm 包**：`@earendil-works/pi-ai`（统一多 provider LLM API）+ `@earendil-works/pi-agent-core`（agent loop + tool 分发 + 事件流 + 多轮状态）。**后端全 TS 单栈**：几何生成/GBH 提交/SQLite/HTTP API 全部 TS 实现，与前端同语言。不引入 experimental 的 protocol/server/client。详见 `docs/dev/research/pi-agent-toolkit.md` |
+
+---
+
+## Tickets — UI 设计批次（2026-08-24，全部 resolved）
+
+> 触发：用户反馈"当前系统没有 UI 设计，UI 混乱"。PRD：`docs/prd/frontend-ui-redesign.md`。
+
+| Slug | Blocked by | Status | Type | Question | Answer |
+|------|-----------|--------|------|----------|--------|
+| dm-101-ui-pain | — | resolved | Grilling | "UI 混乱"的核心痛点层次：视觉层 / 信息架构层 / 交互流程层 / 全面重设计 | **全面重设计**：视觉、信息架构、交互流程三者都不满意，以「对外演示级」标准从零做一套统一设计语言与界面，不保留现有 inline-style 结构 |
+| dm-102-ui-direction | — | resolved | Grilling | 设计语言取向：组件库 vs Tailwind+自研组件 vs 纯 CSS token | **Tailwind CSS + shadcn/ui（Radix 无样式组件）+ 自研深色主题 token**：现代可高度定制、视觉独特不套壳；默认深色（契合 Cesium 地图场景） |
+| dm-103-ui-canvas | — | resolved | Grilling | 目标画布与响应式：桌面大屏 / 平板 / 手机 / 单分辨率 | **桌面大屏优先，笔记本兼顾**：最佳 1920×1080，保证 ≥1440px 完整体验；1366×768 做「能用」级适配（不碎不遮）；平板/手机不支持；Cesium 地图始终为右侧主区域 |
+| dm-104-design-system | — | resolved | Grilling | 设计系统沉淀程度：一次性视觉整理 vs 可复用 token + 基础组件库 vs 完整系统+文档 | **沉淀 token + 基础组件库**：design token（颜色/字体/间距/圆角/阴影/状态色）+ shadcn 基础组件主题化 + 布局骨架与通用业务组件（地图浮层/对话气泡/状态徽章/提交条），支撑后续迭代；不产出独立规范文档/Storybook |
+| dm-105-layout | — | resolved | Grilling | 重设计后的布局骨架方向：地图为底+浮窗 / 左右两栏重构 / 三栏 / 对话为主 | **三栏：历史 · 对话 · 地图**：左窄栏历史/会话列表 + 中栏对话主区 + 右大栏 Cesium 地图；信息层级最清晰，对话与历史互不抢占；最佳 1920+ 大屏 |
+| dm-106-narrow | — | resolved | Grilling | 1366×768 笔记本下三栏如何降级：历史收起为图标栏/抽屉、对话栏缩窄、地图保持 | **历史收起为图标栏 + 抽屉**：历史栏默认收成 ~48px 图标窄条（hover tooltip），点击「历史」按钮展开为覆盖抽屉；对话栏与地图栏保持并排，地图始终为右侧主区域 |
