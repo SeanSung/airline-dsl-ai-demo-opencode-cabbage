@@ -1,8 +1,8 @@
 import { useCallback } from 'react'
-import { ChatPanel } from './components/ChatPanel'
-import { RouteMap } from './components/RouteMap'
-import { GBHSubmitBar } from './components/GBHSubmitBar'
-import { HistoryPanel, type SubmitStatus } from './components/HistoryPanel'
+import { ChatPanel } from './components/chat/ChatPanel'
+import { GbhPanel } from './components/map/GbhPanel'
+import { RouteMap } from './components/map/RouteMap'
+import { HistoryPanel, type SubmitStatus } from './components/history/HistoryPanel'
 import { AppShell } from './components/layout/AppShell'
 import { ChatProvider, useChat } from './state/chatReducer'
 import { useChatStream, conversationForRoute } from './api/useChatStream'
@@ -47,10 +47,10 @@ function Workspace() {
       renderHistory={() => <HistoryPanel onResume={onResume} onResubmit={onResubmit} />}
       chat={<ChatPanel />}
       map={
-        <div className="flex h-full flex-col">
+        <>
           <RouteMap route={state.route} />
-          <GBHSubmitBar route={state.route} />
-        </div>
+          <GbhPanel route={state.route} />
+        </>
       }
     />
   )
