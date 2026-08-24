@@ -1,8 +1,12 @@
 {
   "name": "airline-dsl-ai-demo-opencode-cabbage",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "private": true,
-  "workspaces": ["shared", "server", "frontend"],
+  "workspaces": [
+    "shared",
+    "server",
+    "frontend"
+  ],
   "scripts": {
     "test": "npm run test --workspace shared --workspace server --workspace frontend",
     "build": "npm run build --workspace shared --workspace server --workspace frontend",
