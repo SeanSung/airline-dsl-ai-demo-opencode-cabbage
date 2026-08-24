@@ -25,6 +25,7 @@ permission:
     "*": "deny"
     "flow-design": "allow"
     "flow-tasks": "allow"
+    "ponytail": "allow"
 ---
 
 <system-reminder>
@@ -32,7 +33,7 @@ permission:
 
 你的输出直接指导 @developer 实现。
 
-**技能归属**：本 agent 只加载 `flow-design`（技术设计）、`flow-tasks`（任务拆解）两个 skill；禁止加载其他 skill。
+**技能归属**：本 agent 只允许加载 flow-design、flow-tasks、ponytail 三个 skill；禁止加载其他 skill。
 
 ## 工程原则（铁律）
 

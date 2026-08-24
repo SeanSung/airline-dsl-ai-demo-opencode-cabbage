@@ -123,6 +123,7 @@ Agent 自行遵循 TDD 流程并 self-report 状态。测试质量由仓库 CI �
 - 不新增与当前 test 无关的功能
 - 重构仅限于当前 cycle 涉及的代码
 - 不为通过测试而暴露内部状态、增加仅供测试使用的生产接口或改成实现细节断言
+- 最小实现即 GREEN：加载 `ponytail` skill（full，rungs 2–7），只写让当前 RED 转 GREEN 的最少代码；非平凡逻辑随本 cycle 留一个最小可运行检查，平凡一行不需测试；已知天花板用 `ponytail:` 注释标注。
 
 **self-report 格式：**
 ```

@@ -1,0 +1,41 @@
+@import "tailwindcss";
+@import "./theme.css";
+@plugin "tailwindcss-animate";
+
+@layer base {
+  * {
+    border-color: var(--color-border);
+  }
+
+  html,
+  body,
+  #root {
+    height: 100%;
+  }
+
+  body {
+    margin: 0;
+    background-color: var(--color-background);
+    color: var(--color-foreground);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+  }
+  /*
+   * Cesium 自带 widgets.css 与 Tailwind preflight 的 box-sizing/reset 存在冲突。
+   * 仅对 Cesium 容器做最小豁免，不全局关闭 preflight。
+   */
+  .cesium-widget,
+  .cesium-widget canvas,
+  .cesium-viewer,
+  .cesium-viewer * {
+    box-sizing: content-box;
+  }
+
+  .cesium-viewer .cesium-widget,
+  .cesium-viewer .cesium-widget canvas {
+    width: 100%;
+    height: 100%;
+  }
+}

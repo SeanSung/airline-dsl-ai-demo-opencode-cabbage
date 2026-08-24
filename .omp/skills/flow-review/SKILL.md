@@ -45,6 +45,7 @@ reviewer 只读：不直接执行 `gh pr review` / `gh pr merge`（写操作由 
 - 检查仓库文档化规范、AGENTS.md 与相关 ADR；仓库规则优先。
 - 参考 `references/smell-baseline.md`，代码气味属于判断性问题，不冒充硬性规范。
 - 检查 KISS、YAGNI、SRP，以及是否存在浅 Module、透传层或只有一个假设 Adapter 的 Seam。
+- 按 `ponytail`（full，rungs 2–7）核查：未被请求的抽象/接口、新依赖、为未来预留的脚手架、本可一行/stdlib/native 的自定义实现；任何带已知天花板却缺 `ponytail:` 注释的代码记为规范轴 finding。bug 修复类 PR 额外核查是否根因集中修复（枚举全部调用点：LSP references 优先，反射/动态派发用文本搜索兜底），而非在各调用方补症状守卫。
 - 检查测试是否描述行为、使用公共 Test Seam，并避免私有方法、内部调用次数/顺序、侧信道和循环论证。
 - 跳过 formatter、lint、typecheck 等工具已经强制执行且没有实际风险的机械问题。
 

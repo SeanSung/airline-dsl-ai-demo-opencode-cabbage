@@ -25,6 +25,7 @@ description: 将技术方案拆解为可独立实现的 tracer-bullet Task Plan 
 - Task、Design 与 repository context 足够开始工作。
 - 正常情况下不需要再次进行架构设计。
 - 可以在一次独立开发循环中实现、测试、提交。
+- 加载 `ponytail` skill（full）：不为制造并行度拆 Task（与「何时拆分」一致）；能一个内聚 Task 完成就不拆；pre-refactor 必须过 ladder rung-1（不做"以后可能复用"）；任何 Task 不得是完成后不可工作的脚手架。
 
 ## 何时拆分
 

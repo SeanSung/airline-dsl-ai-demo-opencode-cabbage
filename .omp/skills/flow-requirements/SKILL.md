@@ -13,7 +13,7 @@ description: 渐进式需求澄清 → PRD → Parent Issue
 
 ## 核心原则：验收可判定（Testable Acceptance）
 
-PRD 的验收标准是下游 `flow-design`（Testing Decisions）、`flow-tasks`（Acceptance Criteria）、`flow-tdd`（final-verification 逐条验证）的输入源。因此**每一条验收标准都必须能让一个没参与需求讨论的人或 fresh agent 独立判定 pass/fail**。
+PRD 的验收标准是下游 `flow-design`（Testing Decisions）、`flow-tasks`（Acceptance Criteria）、`flow-tdd`、`flow-review`（final-verification 逐条验证）的输入源。因此**每一条验收标准都必须能让一个没参与需求讨论的人或 fresh agent 独立判定 pass/fail**。
 
 一条合格的验收标准：
 

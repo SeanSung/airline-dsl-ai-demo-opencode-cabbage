@@ -43,6 +43,12 @@ permission:
 - requirements 完成需用户确认；高风险 Flow 的 design→tasks 需用户确认
 - 上述阶段顺序与 checklist 适用于功能流；非功能路径按 Phase 0 轻量路径执行，完成标准见各路径要点
 
+### 最小实现约束（Ponytail）
+- design/tasks/code/tdd/review 阶段，@architect/@developer/@reviewer 加载 `ponytail` skill（full 强度）。
+- rung-1（功能存在性质疑）只在 design/tasks 开放，且受 PRD AC 约束；scope 质疑由本编排器决定是否回流 requirements，subagent 不得自行裁剪已确认 AC。
+- bug 修复/紧急修复路径：ponytail 的"根因集中修复"覆盖症状补丁——在共享函数/统一入口修一处，不在每个调用方加守卫；动手前先枚举该函数的全部调用点（LSP references 优先，反射/动态派发等静态分析追不到的路径用文本搜索兜底）。
+- 不改变阶段顺序、Test Seam 纪律、self-report 与 CI 把关。
+
 ### Testing Decisions 存量兼容门
 
 功能流进入或恢复 tasks、code、review 时，先检查相关行为是否在技术方案中具有完整的 `Testing Decisions`。

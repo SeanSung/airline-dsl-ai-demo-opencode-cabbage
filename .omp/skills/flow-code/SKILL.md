@@ -25,6 +25,7 @@ worktree 创建、PR 提交由 primary 编排器执行，本 skill 定义编码�
 - 只改 Task 相关的文件；遵循项目现有代码规范与分层结构
 - 遵循工程原则（KISS/YAGNI/DRY/SRP/最小变更，单份引用仓库 AGENTS.md）
 - 文档同步：涉及 guides/api/db 变更时随代码同 PR 更新
+- 加载 `ponytail` skill（full，rung-1 关闭）：最短正确 diff；动手前先枚举所改函数的全部调用点（LSP references 优先，反射/动态派发等静态分析追不到的路径用文本搜索兜底），根因在共享处修一处而非各调用方补守卫；stdlib/native/已装依赖优先；已知天花板留 `ponytail:` 注释；不引入未在项目使用的第三方依赖。
 
 ## TDD 引用
 
