@@ -1,7 +1,7 @@
 import { describe, expect, it, vi } from 'vitest'
 import { fireEvent, render, screen, waitFor } from '@testing-library/react'
 import type { AgentEvent, AirlineContent } from '@airline-dsl/shared'
-import { ChatProvider } from '../state/chatReducer'
+import { ChatProvider } from '../../state/chatReducer'
 import { ChatPanel } from './ChatPanel'
 
 function makeContent(): AirlineContent {
@@ -118,16 +118,22 @@ describe('ChatPanel', () => {
     await waitFor(() => expect(screen.getByTestId('error-bar')).toHaveTextContent('高度 700m 超出上限 500m'))
   })
 
-  it('新建会话重置消息与路由', async () => {
+  it('发送消息后清空输入草稿并出现用户气泡（新建会话入口已由 TopBar 接管）', async () => {
     renderPanel([
       { type: 'route_generated', routeId: 'r1', content: makeContent(), intent: makeIntent(), aiGenerated: true },
       { type: 'done' },
     ])
-    fireEvent.change(screen.getByPlaceholderText('输入需求…'), { target: { value: '环绕沧海一圈' } })
+    const input = screen.getByPlaceholderText('输入需求…') as HTMLInputElement
+    fireEvent.change(input, { target: { value: '环绕沧海一圈' } })
     fireEvent.click(screen.getByText('发送'))
+    await waitFor(() => expect(screen.getByTestId('bubble-user')).toHaveTextContent('环绕沧海一圈'))
+    // 发送后草稿清空
+    expect(input.value).toBe('')
+    // 路由卡片已生成
     await waitFor(() => expect(screen.getByTestId('route-card')).toBeInTheDocument())
-    fireEvent.click(screen.getByText('新建会话'))
-    await waitFor(() => expect(screen.queryByTestId('route-card')).not.toBeInTheDocument())
-    expect(screen.getAllByTestId('suggestion').length).toBeGreaterThanOrEqual(2)
+    // 组件内部不再渲染“新建会话”按钮（已上移至 AppShell TopBar）
+    expect(screen.queryByText('新建会话')).not.toBeInTheDocument()
+    // 对话栏无 header
+    expect(screen.queryByTestId('topbar')).not.toBeInTheDocument()
   })
 })
