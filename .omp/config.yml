@@ -1,0 +1,4 @@
+disabledProviders:
+  - claude          # ~/.claude/CLAUDE.md、.claude/CLAUDE.md、settings、MCP、skills 等
+  - claude-plugins  # ~/.claude/plugins/cache/ 下的 ECC 等插件 skills/commands/hooks
+  - opencode        # ~/.config/opencode/ 与 .opencode/
