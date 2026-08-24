@@ -1,6 +1,7 @@
 # Decision Map — 基于 DSL 航线编辑脚本的大疆航线编辑 Agent
 
 > 需求澄清决策映射（flow-requirements）。航线编辑 Agent 批次（dm-001~dm-012）已于 2026-08-21 全部 resolved，PRD：`docs/prd/airline-dsl-edit-agent.md`。2026-08-24 新增 **UI 设计批次（dm-101 起）**：用户反馈"系统没有 UI 设计、UI 混乱"。✅ UI 批次全部前沿已 resolved，PRD：`docs/prd/frontend-ui-redesign.md`。
+> **2026-08-24 布局重构批次（dm-301 起，全部 resolved）**：见独立决策映射 `docs/dev/decision-map-layout-refactor.md`；PRD `docs/prd/frontend-layout-ai-composer.md`；Parent Issue #45。核心决策：左栏改 64–72px 图标导航栏（历史走 Sheet 抽屉）、移除全宽顶栏改右主区内嵌标题/状态栏、底部大圆角 AI composer、流式状态迁移到 `@ai-sdk/react` useChat（完全接管，移除 chatReducer/useChatStream）。
 
 ## 背景事实（已调研）
 
