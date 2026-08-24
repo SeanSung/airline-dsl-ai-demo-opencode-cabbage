@@ -1,8 +1,13 @@
 import { useEffect, useRef, useState } from 'react'
+import 'cesium/Build/Cesium/Widgets/widgets.css'
 import type { Viewer } from 'cesium'
 import type { RouteData } from '../state/chatReducer'
 import { buildCesiumEntities, type CesiumEntityDescription } from '../lib/cesium-entities'
 import { fetchMapToken } from '../lib/map-token'
+
+// Cesium resolves Workers/Assets/Widgets/ThirdParty relative to this base URL.
+// vite-plugin-static-copy serves node_modules/cesium/Build/Cesium/* at /cesium/.
+window.CESIUM_BASE_URL = '/cesium/'
 
 export function RouteMap({ route }: { route: RouteData | null }) {
   const containerRef = useRef<HTMLDivElement | null>(null)
