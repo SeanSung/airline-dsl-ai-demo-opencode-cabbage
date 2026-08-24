@@ -32,6 +32,7 @@
   --color-accent: hsl(var(--accent));
   --color-accent-foreground: hsl(var(--accent-foreground));
   --color-destructive: hsl(var(--destructive));
+  --color-destructive-solid: hsl(var(--destructive-solid));
   --color-destructive-foreground: hsl(var(--destructive-foreground));
   --color-border: hsl(var(--border));
   --color-input: hsl(var(--input));
@@ -71,8 +72,10 @@
 
   --accent: 199 70% 22%;
   --accent-foreground: 199 89% 80%;
-
-  --destructive: 0 72% 56%;
+  /* destructive 拆两色：亮红用于深底上的错误文字/边框（≥4.5:1），
+     深红用于实心填充与半透明错误气泡底（白字 ≥4.5:1）。 */
+  --destructive: 0 72% 64%;
+  --destructive-solid: 0 72% 48%;
   --destructive-foreground: 210 20% 98%;
 
   --border: 222 28% 22%;

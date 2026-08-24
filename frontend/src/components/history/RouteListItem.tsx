@@ -14,7 +14,7 @@ export const STATUS_LABEL: Record<RouteStatus, string> = {
 const STATUS_BADGE_CLASS: Record<RouteStatus, string> = {
   draft: 'bg-muted text-muted-foreground',
   validated: 'bg-success text-success-foreground',
-  failed: 'bg-destructive text-destructive-foreground',
+  failed: 'bg-destructive-solid text-destructive-foreground',
 }
 
 interface RouteListItemProps {
@@ -117,7 +117,7 @@ export function RouteListItem({ route, submit, onResume, onResubmit }: RouteList
       )}
       {submit.state === 'error' && (
         <div
-          className="mt-2 flex items-center gap-1.5 rounded-md bg-destructive/10 px-2 py-1.5 text-xs text-destructive"
+          className="mt-2 flex items-center gap-1.5 rounded-md border border-destructive/30 bg-destructive-solid/10 px-2 py-1.5 text-xs text-destructive"
           data-testid="resubmit-status"
         >
           <AlertCircle className="h-3.5 w-3.5 shrink-0" aria-hidden />
