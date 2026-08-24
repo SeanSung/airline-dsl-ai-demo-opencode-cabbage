@@ -69,7 +69,7 @@ export function ChatPanel() {
             if (m.role === 'error') {
               return (
                 <div key={m.id} className="flex justify-start" data-testid="bubble-error">
-                  <div className="max-w-[85%] whitespace-pre-wrap rounded-2xl rounded-bl-sm border border-destructive/30 bg-destructive/15 px-3.5 py-2 text-sm text-destructive">
+                  <div className="max-w-[85%] whitespace-pre-wrap rounded-2xl rounded-bl-sm border border-destructive/30 bg-destructive-solid/15 px-3.5 py-2 text-sm text-destructive">
                     {m.text}
                   </div>
                 </div>
@@ -117,7 +117,7 @@ export function ChatPanel() {
         <div
           data-testid="error-bar"
           role="alert"
-          className="mx-3 mb-2 rounded-md border border-destructive/30 bg-destructive/15 px-3 py-2 text-xs text-destructive"
+          className="mx-3 mb-2 rounded-md border border-destructive/30 bg-destructive-solid/15 px-3 py-2 text-xs text-destructive"
         >
           {state.errorBar}
         </div>
