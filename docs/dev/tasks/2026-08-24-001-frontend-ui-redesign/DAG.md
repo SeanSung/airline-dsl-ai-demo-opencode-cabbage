@@ -6,24 +6,24 @@
 
 ## 拓扑顺序
 
-1. `setup-design-foundation`（基座：Tailwind v4 + shadcn + token + cn）
-2. `app-shell-three-column`（三栏骨架 + 顶栏 + 断点，被 2 阻塞）
+1. `setup-design-foundation`（#32，基座：Tailwind v4 + shadcn + token + cn）
+2. `app-shell-three-column`（#33，三栏骨架 + 顶栏 + 断点，被 #32 阻塞）
 3. 以下三个切片在骨架完成后**可并行**：
-   - `chat-panel-redesign`
-   - `history-panel-responsive`
-   - `map-panel-gbh-overlay`
-4. `visual-polish-and-tokens`（收口扫描 + 两断点目检，被以上三个全部阻塞）
+   - `chat-panel-redesign`（#34）
+   - `history-panel-responsive`（#35）
+   - `map-panel-gbh-overlay`（#36）
+4. `visual-polish-and-tokens`（#37，收口扫描 + 两断点目检，被以上三个全部阻塞）
 
 ## DAG
 
 ```mermaid
 graph TD
-    T1[setup-design-foundation]
-    T2[app-shell-three-column]
-    T3[chat-panel-redesign]
-    T4[history-panel-responsive]
-    T5[map-panel-gbh-overlay]
-    T6[visual-polish-and-tokens]
+    T1["#32 setup-design-foundation"]
+    T2["#33 app-shell-three-column"]
+    T3["#34 chat-panel-redesign"]
+    T4["#35 history-panel-responsive"]
+    T5["#36 map-panel-gbh-overlay"]
+    T6["#37 visual-polish-and-tokens"]
 
     T1 --> T2
     T2 --> T3
