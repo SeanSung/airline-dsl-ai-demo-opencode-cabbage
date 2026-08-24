@@ -8,3 +8,5 @@ dist/
 # agent config
 .opencode
 
+# 运行时数据
+server/data/
