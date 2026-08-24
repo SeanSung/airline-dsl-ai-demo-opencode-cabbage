@@ -66,6 +66,7 @@ export function HistoryPanel({ onResume, onResubmit }: HistoryPanelProps) {
       className="flex h-full flex-col bg-card text-card-foreground"
       data-testid="history-panel"
     >
+      <h2 className="sr-only">历史航线</h2>
       <button
         type="button"
         className={cn(

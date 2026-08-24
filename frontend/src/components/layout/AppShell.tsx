@@ -61,6 +61,8 @@ export function AppShell({ renderHistory, chat, map, onNewConversation }: AppShe
 
   return (
     <div className="flex h-screen flex-col bg-background text-foreground">
+      {/* 全站唯一 h1：应用名，供屏幕阅读器标题导航。视觉标题由 TopBar 的 span 承载，此处 sr-only 兜底。 */}
+      <h1 className="sr-only">航线编辑 Agent</h1>
       <TopBar onNewConversation={onNewConversation} />
 
       <div
@@ -74,6 +76,7 @@ export function AppShell({ renderHistory, chat, map, onNewConversation }: AppShe
         {isWide ? (
           <aside
             data-testid="history-aside"
+            aria-label="历史航线"
             className="min-h-0 overflow-y-auto border-r border-border"
           >
             {historyNode}
@@ -91,6 +94,7 @@ export function AppShell({ renderHistory, chat, map, onNewConversation }: AppShe
               </SheetTrigger>
               <SheetContent side="left" className="w-80 p-0">
                 <SheetHeader className="border-b border-border p-4">
+                  {/* SheetTitle 渲染为 h2，满足面板标题层级 */}
                   <SheetTitle>历史航线</SheetTitle>
                   <SheetDescription className="sr-only">历史航线列表</SheetDescription>
                 </SheetHeader>
@@ -102,11 +106,13 @@ export function AppShell({ renderHistory, chat, map, onNewConversation }: AppShe
           </div>
         )}
 
-        <section data-testid="chat-column" className="flex min-h-0 min-w-0 flex-col overflow-y-auto">
+        <section data-testid="chat-column" aria-labelledby="chat-heading" className="flex min-h-0 min-w-0 flex-col overflow-y-auto">
+          <h2 id="chat-heading" className="sr-only">对话</h2>
           {chat}
         </section>
 
-        <section data-testid="map-column" className="relative flex min-h-0 min-w-0 flex-col">
+        <section data-testid="map-column" aria-labelledby="map-heading" className="relative flex min-h-0 min-w-0 flex-col">
+          <h2 id="map-heading" className="sr-only">航线地图</h2>
           {map}
         </section>
       </div>
