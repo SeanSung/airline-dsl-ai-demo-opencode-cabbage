@@ -1,5 +1,6 @@
 {
   "name": "airline-dsl-ai-demo-opencode-cabbage",
+  "version": "0.0.1",
   "private": true,
   "workspaces": ["shared", "server", "frontend"],
   "scripts": {
