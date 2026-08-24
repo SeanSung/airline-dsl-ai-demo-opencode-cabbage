@@ -1,22 +1,22 @@
 # Skill mechanics
 
-The skill-specific branch of [`writing-for-agents`](SKILL.md): what changes when the document is a skill (frontmatter, the invocation choice, and router skills). Everything else about writing it is the universal reference in `SKILL.md`.
+[`writing-for-agents`](SKILL.md) 的 skill 专属分支：当文档是一个 skill 时会有什么不同——frontmatter、invocation 选择以及 router skills。关于写作的其他一切都是 `SKILL.md` 中的通用 reference。
 
 ## Invocation
 
-Two choices, trading the two loads:
+两种选择，交易两种 load：
 
-- A **model-invoked** skill keeps a `description`, so the agent can fire it autonomously, and other skills can reach it. You can still type its name: model-invocation always _includes_ user reach; a description only ever adds agent discovery, never removes the human's. The description is the skill's top-level context pointer, forced to stay loaded at all times: permanent context load in exchange for discoverability. A model-invoked skill whose content is all reference is also one home for shared reference: another skill can invoke it, so reference needed by several skills lives in one place. Mechanics: omit `disable-model-invocation`, and write a model-facing description carrying the trigger branches (the pointer-writing rules in `SKILL.md` apply in full).
-- A **user-invoked** skill strips the description from the agent's reach: only the human typing its name can invoke it, and no other skill can. Zero context load, but it spends cognitive load: you are the index that must remember it exists. Mechanics: set `disable-model-invocation: true`; the `description` becomes human-facing: a one-line summary, trigger lists stripped.
+- **Model-invoked** skill 保留 `description`，所以 agent 可以自主触发它，其他 skills 也能触达它。你仍然可以手动输入它的名称：model-invocation 总是 _包含_ 用户触达；description 只会增加 agent 发现，从不移除人类的那份。description 是 skill 的顶层 context pointer，被迫始终加载——以永久的 context load 换取可发现性。一个内容全是 reference 的 model-invoked skill 也是 shared reference 的一个归属：另一个 skill 可以调用它，所以被多个 skills 需要的 reference 可以住在同一处。机制：省略 `disable-model-invocation`，并写一个 model-facing description，承载触发 branches（`SKILL.md` 中的 pointer-writing 规则完整适用）。
+- **User-invoked** skill 把 description 从 agent 的触达范围中拿掉：只有人类输入它的名称才能调用它，其他 skill 也不能。零 context load，但它会花 cognitive load——你是那个必须记得它存在的 index。机制：设置 `disable-model-invocation: true`；`description` 变成人类可见的——一行摘要，去掉触发列表。
 
-Pick model-invocation only when the agent must reach the skill on its own, or another skill must. If it only ever fires by hand, make it user-invoked and pay no context load.
+只有当 agent 必须自行触达该 skill、或另一个 skill 必须触达它时，才选 model-invocation。如果它只会被手动触发，就做成 user-invoked，不付 context load。
 
-Shared reference that two user-invoked skills both need can live in neither: with no descriptions, neither can fire the other. Push it to a plain file outside the skill system: external reference any skill can point at.
+两个 user-invoked skills 都需要的 shared reference 放在谁那里都不行——没有 descriptions，谁都触发不了谁。把它推到 skill system 之外的普通文件中：任何 skill 都能指向的 external reference。
 
 ## Splitting by invocation
 
-The invocation cut of splitting (the sequence cut lives in `SKILL.md`): split off a model-invoked skill when you have a distinct leading word that should trigger it on its own (a trigger word you actually use in your prompts), or another skill must reach it. You pay context load for the new always-loaded description, so that independent reach has to be worth it.
+invocation 上的切分（sequence 切分在 `SKILL.md` 中）：当你有一个应独立触发它的 distinct leading word 时——一个你确实在自己的 prompts 里用到的触发词——或另一个 skill 必须触达它时，拆出一个 model-invoked skill。你为新的始终加载的 description 支付 context load，所以那份独立触达必须值得。
 
 ## Router skills
 
-When user-invoked skills multiply past what you can remember, that piled-up cognitive load is cured by a **router skill**: one user-invoked skill that names the others and when to reach for each, so the human has one skill to remember instead of many. It can only hint, never fire them: user-invoked skills have no description, so nothing but the human can reach them.
+当 user-invoked skills 多到你记不住时，堆积的 cognitive load 由一个 **router skill** 来治疗：一个 user-invoked skill，负责命名其他 skills 以及何时伸手去取每一份，这样人类只需记住一个 skill，而不是许多个。它只能提示，绝不触发它们：user-invoked skills 没有 description，所以除了人类，没有任何东西能触达它们。

@@ -1,7 +1,7 @@
 ---
 name: wait-what
-description: "Stop. That last message did not land: re-pitch it."
+description: 停一下。刚才那条消息没有说清楚——重新表述一遍。
 disable-model-invocation: true
 ---
 
-Wait, I don't understand where you've got to here. Re-pitch that: give me a little bit of context, talk in ASD-STE100 Simplified Technical English, and use the ubiquitous language from `CONTEXT.md` (follow `CONTEXT-MAP.md` to the right one if the repo has more than one).
+等一下——我还没弄明白你到这里是怎么想的。重新表述一遍：给我一点 context 背景，用 ASD-STE100 Simplified Technical English 来说，并使用 `CONTEXT.md` 中的 ubiquitous language。

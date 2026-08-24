@@ -1,18 +1,18 @@
 ---
 name: claude-handoff
-description: Hand the current conversation off to a fresh background agent that picks up the work immediately.
-argument-hint: "What will the next session be used for?"
+description: 把当前对话交接给一个全新的 background agent，让它立即接手工作。
+argument-hint: "下一个 session 将用于什么？"
 disable-model-invocation: true
 ---
 
-Write a handoff summary of the current conversation so a fresh agent can continue the work. Instead of saving it, launch a background agent seeded with the summary as its prompt: `claude --bg --name "<descriptive name>" "<handoff summary>"`. It starts in the current working directory and returns immediately; the user manages it with `claude agents`.
+为当前对话写一份 handoff summary，让一个全新的 agent 可以继续工作。不要把它保存下来，而是启动一个以这份 summary 作为 prompt 的 background agent：`claude --bg --name "<descriptive name>" "<handoff summary>"`。它会在当前工作目录中启动并立即返回；用户用 `claude agents` 管理它。
 
-Always pass `-n`/`--name` with a descriptive name (e.g. `--name "Fix login bug"`); it sets the display name shown in the job list, session picker, and terminal title.
+始终带上 `-n`/`--name` 并给出描述性名称（例如 `--name "Fix login bug"`）——它设置显示名称，会出现在 job list、session picker 和 terminal title 中。
 
-Include a "suggested skills" section in the summary, naming which skills the next agent should call the Skill tool for.
+在 summary 中包含一个 "suggested skills" section，推荐 agent 应当调用的 skills。
 
-Do not duplicate content already captured in other artifacts (specs, plans, ADRs, issues, commits, diffs). Reference them by path or URL instead.
+不要重复其它 artifacts（PRDs、plans、ADRs、issues、commits、diffs）中已经记录的内容，改为用 path 或 URL 引用它们。
 
-Redact any sensitive information, such as API keys, passwords, or personally identifiable information, since the summary becomes the agent's prompt.
+删去任何敏感信息，例如 API keys、passwords 或个人身份信息——这份 summary 会成为 agent 的 prompt。
 
-If the user passed arguments, treat them as a description of what the next session will focus on and tailor the summary accordingly.
+如果用户传入了 arguments，把它们当作对下一个 session 重点的描述，并据此调整 summary。

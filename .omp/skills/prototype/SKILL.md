@@ -1,26 +1,26 @@
 ---
 name: prototype
-description: Build a throwaway prototype to answer a design question. Use when the user wants to sanity-check whether a state model or logic feels right, or explore what a UI should look like.
+description: 构建一次性原型来回答一个设计问题。适用于用户想验证某个 state model 或 logic 是否感觉对，或探索 UI 应该长什么样时。
 ---
 
 # Prototype
 
-A prototype is **throwaway code that answers a question**. The question decides the shape.
+Prototype 是**用来回答一个问题的 throwaway code**。问题决定形状。
 
 ## Pick a branch
 
-Identify which question is being answered, using the user's prompt, the surrounding code, or by asking if the user is around:
+先识别正在回答哪个问题：来自用户 prompt、周围代码，或在用户在线时直接询问：
 
-- **"Does this logic / state model feel right?"** → [LOGIC.md](LOGIC.md). Build a single shareable HTML file (free-play buttons plus tabbed guided walkthroughs) that pushes the state machine through cases that are hard to reason about on paper, and that a non-developer can drive.
-- **"What should this look like?"** → [UI.md](UI.md). Generate several radically different UI variations on a single route, switchable via a URL search param and a floating bottom bar.
+- **"Does this logic / state model feel right?"** → [LOGIC.md](LOGIC.md)。构建一个单一、可分享的 HTML 文件——free-play buttons 加 tabbed guided walkthroughs——推动 state machine 跑过纸面上难以推理的 cases，而且非开发人员也能驱动它。
+- **"What should this look like?"** → [UI.md](UI.md)。在单一路由上生成几种差异很大的 UI variations，并通过 URL search param 和浮动底栏切换。
 
-The two branches produce very different artifacts, so getting this wrong wastes the whole prototype. If the question is genuinely ambiguous and the user isn't reachable, default to whichever branch better matches the surrounding code (a backend module → logic; a page or component → UI) and state the assumption at the top of the prototype.
+这两个分支会产出非常不同的 artifacts；选错会浪费整个 prototype。如果问题确实模糊且用户不可达，默认选择更匹配周围代码的分支（backend module → logic；page 或 component → UI），并在 prototype 顶部说明假设。
 
 ## Rules that apply to both
 
-1. **Throwaway from day one, and clearly marked as such.** Locate the prototype code close to where it will actually be used (next to the module or page it's prototyping for) so context is obvious, but name it so a casual reader can see it's a prototype, not production. For throwaway UI routes, obey whatever routing convention the project already uses; don't invent a new top-level structure.
-2. **Trivial to run.** A UI prototype starts from one command in the project's task runner: `pnpm <name>`, `python <path>`, `bun <path>`, etc. A logic demo is a single HTML file the user double-clicks. Either way, no thinking required to start it.
-3. **No persistence by default.** State lives in memory. Persistence is the thing the prototype is _checking_, not something it should depend on. If the question explicitly involves a database, hit a scratch DB or a local file with a clear "PROTOTYPE, wipe me" name.
-4. **Skip the polish.** No tests, no error handling beyond what makes the prototype _runnable_, no abstractions. The point is to learn something fast.
-5. **Surface the state.** After every action (logic) or on every variant switch (UI), print or render the full relevant state so the user can see what changed.
-6. **Capture it when done.** Fold any validated decision into the real code, then capture the prototype itself as a **primary source**: commit it to a throwaway branch, out of main, and leave a context pointer to that branch on the implementation issue. Capture the answer too (the verdict and the question it settled) in the issue or a commit. The main branch keeps only the validated decision.
+1. **从第一天就是 throwaway，并明确标记。** Prototype code 要靠近它实际会被使用的位置（放在被 prototype 的 module 或 page 旁边），这样上下文清楚；但命名要让随手读代码的人看出它是 prototype，不是 production。对 throwaway UI routes，遵守项目现有 routing convention；不要发明新的顶层结构。
+2. **运行毫无负担。** UI prototype 从项目 task runner 中的一条命令启动——`pnpm <name>`、`python <path>`、`bun <path>` 等。Logic demo 则是用户双击即可打开的单个 HTML 文件。无论哪种，启动都不需要动脑。
+3. **默认不持久化。** State 保存在内存中。Persistence 是 prototype 要_检查_的东西，不该成为依赖。如果问题明确涉及 database，就用 scratch DB 或带有清晰 “PROTOTYPE — wipe me” 名称的本地文件。
+4. **跳过 polish。** 不写 tests，不做超过“能跑起来”所需的 error handling，不做 abstractions。重点是快速学到东西。
+5. **暴露 state。** 每次 action（logic）或每次 variant switch（UI）后，打印或渲染完整相关 state，让用户看到发生了什么变化。
+6. **完成后 capture。** 把验证过的 decision 折进真实 code，然后把 prototype 本身作为 **primary source** 保存：commit 到 main 之外的 throwaway branch，并在 implementation issue 上留下指向该 branch 的 context pointer。同时在 issue 或 commit 中 capture answer，也就是 verdict 与它解决的问题。Main branch 只保留验证过的 decision。

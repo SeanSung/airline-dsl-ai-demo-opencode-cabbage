@@ -1,8 +1,8 @@
 # Phase boundaries
 
-A **phase** is a chunk of work inside a session: the grilling, the implementation, the QA. The definition is fuzzy on purpose: a phase ends when you think *"ok, we're done with that"*.
+**phase** 是 session 内的一段工作——grilling、implementation、QA。这个定义刻意模糊：当你冒出 "行，这个做完了" 的想法时，一个 phase 就结束了。
 
-The **phase boundary** is the gap between two phases, and it is the only place this decision belongs. Mid-phase there is no decision to make: continue, or split the work that's left into subagents. Compacting mid-phase makes the agent lose the thread.
+**phase boundary** 是两个 phase 之间的间隙，也是这个决定唯一该出现的地方。phase 中途没有决定要做——要么继续，要么把剩余的工作拆成 subagents。在 phase 中途 compact 会让 agent 丢失线索。
 
 ## The five options
 
@@ -16,40 +16,40 @@ The **phase boundary** is the gap between two phases, and it is the only place t
 
 ## The tree
 
-Work top to bottom at the boundary. The first **yes** wins.
+在 boundary 处从上到下工作。第一个 **yes** 胜出。
 
-**1. Can you continue in this session?** Two things make the answer yes: the next phase needs this phase as a **primary source**, or you have enough [smart zone](https://www.aihero.dev/ai-coding-dictionary/smart-zone) left (~150k tokens) for the next phase to fit. Grilling → implementation is the standard yes: the implementation wants the reasoning verbatim, not a summary of it. Continue costs nothing and loses nothing, so rule it out before anything else.
+**1. 你能在这个 session 里继续吗？** 有两个条件让答案为 yes：下一 phase 需要当前 phase 作为 **primary source**，或者你还有足够的 [smart zone](https://www.aihero.dev/ai-coding-dictionary/smart-zone)（约 150k tokens）让下一 phase 装得下。Grilling -> implementation 是标准的 yes：implementation 想要的是逐字的推理过程，而不是它的 summary。Continue 不花成本也不丢任何东西，所以先排除它。
 
-**2. Is the context irrelevant to what comes next?** Is everything in this session (the exploration, the decisions, the dead ends) disposable? If so, **`/clear`**. It is the cheapest move on the board: it takes no time and hands back the whole window. `/clear` also isn't terminal: the old session stays resumable.
+**2. 这个 context 对接下来要做的事无关紧要吗？** 这个 session 里的一切——探索、决定、死胡同——都可以丢弃吗？如果是，**`/clear`**。它是整张棋盘上最便宜的一步：不花时间，把整个 window 还给你。`/clear` 也不是终局——旧 session 仍然可以恢复。
 
-The cost of getting this wrong is one-way. Clear a *relevant* context and you lose the **why** behind what you built, and no amount of reading the diff back gets it returned.
+选错这一步的代价是单向的。清掉一个 *relevant* 的 context，你就失去了你构建之物背后的 **why**，再怎么回读 diff 也要不回来。
 
-**3. Do you need to hand off?** `/handoff` is narrow. You need it only when you are:
+**3. 你需要 hand off 吗？** `/handoff` 很窄。只有以下情况才需要它：
 
-- swapping to a **new harness** (Claude → Codex),
-- moving to a **new directory** or repo,
-- sending the work to a **colleague**,
-- or forking a side task you found **mid-phase** without derailing what you're doing.
+- 换到 **new harness**（Claude -> Codex），
+- 移到 **new directory** 或 repo，
+- 把工作交给 **colleague**，
+- 或者在 **phase 中途** 分叉一个 side task，而不打乱你正在做的事。
 
-That list is the whole clause. What `/handoff` buys is **portability**: a file that travels. If nothing is travelling, you don't need it.
+这个列表就是全部条款。`/handoff` 买到的是 **portability**——一份能随行移动的文件。如果没有东西在移动，你就不需要它。
 
-**4. Can the task be done AFK?** Is it scoped tightly enough to run with you away from the keyboard, no steering? Then send it to a **subagent** and leave this session untouched. Automated review is the standard case: the agent reads the diff and reports, and you aren't needed while it does.
+**4. 这个 task 能否 AFK 完成？** 它的 scope 是否足够紧，能在你离开键盘、不做任何 steering 的情况下运行？如果是，就把它发给 **subagent**，让这个 session 保持原样。自动化 review 是标准场景：agent 读 diff 并报告，期间不需要你。
 
-**5. Otherwise, `/compact`.** Relevant context, same harness, same directory, and you need to stay in the loop: this is where the tree lands, and it lands here often. Pass it an instruction (`/compact we're going to QA this area`) so the summary keeps what the next phase needs.
+**5. 否则，`/compact`。** Relevant context、同一 harness、同一 directory，而且你需要留在 loop 中——树的落点就在这里，而且经常落在这里。给它一条指令（`/compact we're going to QA this area`），让 summary 保留下一 phase 需要的东西。
 
-`/compact` is the **default, not the first reach**. It sits at the bottom because the four questions above it are all cheaper or more precise. The failure mode when people start here is a fresh session that is confidently wrong about a decision the summary flattened.
+`/compact` 是 **default，不是最先伸手可及的选择**。它位于树底，是因为上面四个问题的成本都更低或更精确。人们从这里开始时典型的 failure mode 是：一个 fresh session 对 summary 压扁过的决定自信地给出错误答案。
 
 ## Primary and secondary sources
 
-Every move except **Continue** turns a **primary source** into a **secondary source**: the session as it happened, replaced by a summary of it. The trade is always the same shape:
+除了 **Continue**，每个动作都会把 **primary source** 变成 **secondary source**——以 summary 取而代之正在发生的 session。权衡的形状总是一样的：
 
 | Source                            | Information | Noise | Room to move |
 | --------------------------------- | ----------- | ----- | ------------ |
 | Primary (Continue)                | Full        | Lots  | Little       |
 | Secondary (`/compact`, `/handoff`) | Lossy       | Less  | Lots         |
 
-This is why question 1 comes first. You only pay the lossiness when staying costs more than it saves.
+这就是为什么问题 1 排在最前。只有留在原地比省下更多时，你才付 lossiness 的代价。
 
 ## These are judgement calls
 
-The questions are not objective: each has taste in it, and the same boundary can go two ways on two days. The value is in asking them **in order**, at the boundary rather than in the middle of the work.
+这些问题不是客观的——每个都掺着品味，同一个 boundary 昨天和今天可能走两个方向。价值在于**按顺序**、在 boundary 而不是工作中途提出它们。
