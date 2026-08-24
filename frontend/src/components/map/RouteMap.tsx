@@ -1,12 +1,14 @@
 import { useEffect, useRef, useState } from 'react'
 import 'cesium/Build/Cesium/Widgets/widgets.css'
+import type * as CesiumModule from 'cesium'
 import type { Viewer } from 'cesium'
-import type { RouteData } from '../state/chatReducer'
-import { buildCesiumEntities, type CesiumEntityDescription } from '../lib/cesium-entities'
-import { fetchMapToken } from '../lib/map-token'
+import type { RouteData } from '../../state/chatReducer'
+import { buildCesiumEntities, type CesiumEntityDescription } from '../../lib/cesium-entities'
+import { fetchMapToken } from '../../lib/map-token'
+import { MapOverlayCard } from '../layout/MapOverlayCard'
 
-// Cesium resolves Workers/Assets/Widgets/ThirdParty relative to this base URL.
-// vite-plugin-static-copy serves node_modules/cesium/Build/Cesium/* at /cesium/.
+// Cesium 会相对于此 base URL 解析 Workers/Assets/Widgets/ThirdParty。
+// vite-plugin-static-copy 把 node_modules/cesium/Build/Cesium/* 拷贝到 /cesium/。
 window.CESIUM_BASE_URL = '/cesium/'
 
 export function RouteMap({ route }: { route: RouteData | null }) {
@@ -15,7 +17,11 @@ export function RouteMap({ route }: { route: RouteData | null }) {
   const [info, setInfo] = useState<string | null>(null)
 
   useEffect(() => {
-    if (!route || !containerRef.current) return
+    if (!route || !containerRef.current) {
+      setBadge(null)
+      setInfo(null)
+      return
+    }
     const entities = buildCesiumEntities(route.content, route.aiGenerated)
     const badgeEntity = entities.find((e) => e.kind === 'badge')
     const infoEntity = entities.find((e) => e.kind === 'info')
@@ -31,6 +37,7 @@ export function RouteMap({ route }: { route: RouteData | null }) {
     let cancelled = false
 
     void (async () => {
+      // Cesium 体积大且需在设置 window.CESIUM_BASE_URL 后才加载，故用动态 import。
       const Cesium = await import('cesium')
       if (cancelled || !containerRef.current) return
       viewer = new Cesium.Viewer(containerRef.current, { baseLayer: false })
@@ -66,29 +73,35 @@ export function RouteMap({ route }: { route: RouteData | null }) {
   }, [route])
 
   return (
-    <div className="route-map-wrap" style={{ flex: 1, position: 'relative', minHeight: 0 }}>
-      <div className="route-map" ref={containerRef} data-testid="route-map" style={{ position: 'absolute', inset: 0 }} />
+    // 外层 flex-1 占满地图列剩余高度；relative 为浮卡提供定位上下文。
+    <div className="relative min-h-0 flex-1 overflow-hidden">
+      {/* Cesium Viewer 挂载节点：用类名 absolute inset-0 撑满父容器即可，
+          Cesium 会自动读取容器 clientWidth/clientHeight，无需行内像素尺寸。 */}
+      <div ref={containerRef} data-testid="route-map" className="absolute inset-0 h-full w-full" />
       {badge && (
         <div
           data-testid="map-badge"
-          style={{ position: 'absolute', top: 12, right: 12, background: 'rgba(15,23,42,0.92)', color: '#38bdf8', padding: '4px 10px', borderRadius: 4, fontSize: 13 }}
+          className="absolute right-3 top-3 rounded-md border border-border bg-card/95 px-2.5 py-1 text-xs font-medium text-primary shadow-md backdrop-blur supports-[backdrop-filter]:bg-card/80"
         >
           {badge}
         </div>
       )}
       {info && (
-        <div
-          data-testid="map-info"
-          style={{ position: 'absolute', bottom: 12, left: 12, background: 'rgba(15,23,42,0.92)', color: '#fff', padding: '8px 12px', borderRadius: 4, fontSize: 13 }}
+        <MapOverlayCard
+          title="航线信息"
+          className="bottom-3 left-3 w-80 max-w-[calc(100%-1.5rem)]"
+          defaultOpen={false}
         >
-          {info}
-        </div>
+          <span data-testid="map-info" className="leading-relaxed text-muted-foreground">
+            {info}
+          </span>
+        </MapOverlayCard>
       )}
     </div>
   )
 }
 
-function renderGeo(viewer: Viewer, entities: CesiumEntityDescription[], Cesium: typeof import('cesium')): void {
+function renderGeo(viewer: Viewer, entities: CesiumEntityDescription[], Cesium: typeof CesiumModule): void {
   for (const e of entities) {
     if (e.kind === 'nest') {
       viewer.entities.add({

@@ -1,8 +1,7 @@
 import { describe, expect, it, vi } from 'vitest'
 import { fireEvent, render, screen, waitFor } from '@testing-library/react'
-import type { AirlineContent } from '@airline-dsl/shared'
-import type { RouteData } from '../state/chatReducer'
-import { GBHSubmitBar } from './GBHSubmitBar'
+import type { RouteData } from '../../state/chatReducer'
+import { GbhPanel } from './GbhPanel'
 
 function makeRoute(routeId = 'r1'): RouteData {
   return {
@@ -34,38 +33,72 @@ function makeRoute(routeId = 'r1'): RouteData {
   }
 }
 
-describe('GBHSubmitBar', () => {
+describe('GbhPanel', () => {
+  it('无 route 时提交按钮禁用', () => {
+    render(<GbhPanel route={null} />)
+    expect(screen.getByTestId('gbh-submit')).toBeDisabled()
+    expect(screen.getByTestId('gbh-bar')).toBeInTheDocument()
+  })
+
   it('提交中显示 loading 文案，完成后显示验证通过', async () => {
     let resolvePromise: (r: Response) => void = () => {}
     const fetchFn = vi.fn(() => new Promise<Response>((resolve) => { resolvePromise = resolve }))
     vi.stubGlobal('fetch', fetchFn)
-    render(<GBHSubmitBar route={makeRoute()} />)
+    render(<GbhPanel route={makeRoute()} />)
     fireEvent.click(screen.getByTestId('gbh-submit'))
     expect(screen.getByText('正在提交模拟飞行…')).toBeInTheDocument()
     resolvePromise(new Response(JSON.stringify({ status: 'ok', gbhRouteId: 'gbh_abc' }), { status: 200 }))
     await waitFor(() => expect(screen.getByTestId('gbh-status')).toHaveTextContent('验证通过'))
     expect(screen.getByText(/gbh_abc/)).toBeInTheDocument()
+    vi.unstubAllGlobals()
   })
 
   it('成功态显示验证通过与平台 routeId', async () => {
     vi.stubGlobal('fetch', vi.fn(() => Promise.resolve(new Response(JSON.stringify({ status: 'ok', gbhRouteId: 'gbh_1' }), { status: 200 }))))
-    render(<GBHSubmitBar route={makeRoute()} />)
+    render(<GbhPanel route={makeRoute()} />)
     fireEvent.click(screen.getByTestId('gbh-submit'))
     await waitFor(() => expect(screen.getByTestId('gbh-status')).toHaveTextContent('验证通过'))
     expect(screen.getByTestId('gbh-status')).toHaveTextContent('gbh_1')
+    vi.unstubAllGlobals()
   })
 
   it('失败态透传平台错误信息', async () => {
     vi.stubGlobal('fetch', vi.fn(() => Promise.resolve(new Response(JSON.stringify({ status: 'error', message: '平台校验失败：高度超限' }), { status: 200 }))))
-    render(<GBHSubmitBar route={makeRoute()} />)
+    render(<GbhPanel route={makeRoute()} />)
     fireEvent.click(screen.getByTestId('gbh-submit'))
     await waitFor(() => expect(screen.getByTestId('gbh-status')).toHaveTextContent('平台校验失败：高度超限'))
+    vi.unstubAllGlobals()
   })
 
-  it('invalid 态透传错误数组', async () => {
+  it('invalid 态提取错误数组中的 message 且不泄露 JSON', async () => {
     vi.stubGlobal('fetch', vi.fn(() => Promise.resolve(new Response(JSON.stringify({ status: 'invalid', errors: [{ path: 'waypoints.0', message: '非法' }] }), { status: 200 }))))
-    render(<GBHSubmitBar route={makeRoute()} />)
+    render(<GbhPanel route={makeRoute()} />)
     fireEvent.click(screen.getByTestId('gbh-submit'))
     await waitFor(() => expect(screen.getByTestId('gbh-status')).toHaveTextContent('非法'))
+    const statusText = screen.getByTestId('gbh-status').textContent ?? ''
+    expect(statusText).not.toContain('{')
+    expect(statusText).not.toContain('"')
+    vi.unstubAllGlobals()
+  })
+
+  it('切换 route 后重置提交状态，不误显上一条航线结果', async () => {
+    vi.stubGlobal(
+      'fetch',
+      vi.fn(() =>
+        Promise.resolve(
+          new Response(JSON.stringify({ status: 'ok', gbhRouteId: 'gbh_old' }), { status: 200 }),
+        ),
+      ),
+    )
+    const { rerender } = render(<GbhPanel route={makeRoute('r1')} />)
+    fireEvent.click(screen.getByTestId('gbh-submit'))
+    await waitFor(() => expect(screen.getByTestId('gbh-status')).toHaveTextContent('gbh_old'))
+
+    // 切换到新航线：旧的成功态必须清空，按钮恢复可点
+    rerender(<GbhPanel route={makeRoute('r2')} />)
+    expect(screen.queryByTestId('gbh-status')).toBeNull()
+    expect(screen.getByTestId('gbh-submit')).not.toBeDisabled()
+    expect(screen.getByTestId('gbh-submit')).toHaveTextContent('一键提交 GBH')
+    vi.unstubAllGlobals()
   })
 })

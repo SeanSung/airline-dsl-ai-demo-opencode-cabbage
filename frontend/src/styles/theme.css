@@ -1,0 +1,91 @@
+/*
+ * Design token 单一真相源（Tailwind v4 CSS-first 配置）。
+ * - @theme inline：把语义 token 注册为 Tailwind 工具类（bg-background、text-foreground…），
+ *   因值含运行时 var()，必须用 inline 让工具类引用变量而非拷贝静态值。
+ * - :root：深色主题下各语义变量的实际 HSL 通道值（shadcn 约定）。
+ * 颜色一律走 var(--color-*)，不在 .tsx 写颜色字面量。
+ */
+
+@theme inline {
+  --font-sans:
+    'Inter', 'PingFang SC', 'Microsoft YaHei', system-ui, -apple-system,
+    'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+
+  --radius-lg: 0.75rem;
+  --radius-md: calc(var(--radius-lg) - 4px);
+  --radius-sm: calc(var(--radius-lg) - 8px);
+  --radius-xl: calc(var(--radius-lg) + 4px);
+
+  /* 语义色 → 引用 :root 中的深色变量（HSL 通道，包裹 hsl()） */
+  --color-background: hsl(var(--background));
+  --color-foreground: hsl(var(--foreground));
+  --color-card: hsl(var(--card));
+  --color-card-foreground: hsl(var(--card-foreground));
+  --color-popover: hsl(var(--popover));
+  --color-popover-foreground: hsl(var(--popover-foreground));
+  --color-primary: hsl(var(--primary));
+  --color-primary-foreground: hsl(var(--primary-foreground));
+  --color-secondary: hsl(var(--secondary));
+  --color-secondary-foreground: hsl(var(--secondary-foreground));
+  --color-muted: hsl(var(--muted));
+  --color-muted-foreground: hsl(var(--muted-foreground));
+  --color-accent: hsl(var(--accent));
+  --color-accent-foreground: hsl(var(--accent-foreground));
+  --color-destructive: hsl(var(--destructive));
+  --color-destructive-foreground: hsl(var(--destructive-foreground));
+  --color-border: hsl(var(--border));
+  --color-input: hsl(var(--input));
+  --color-ring: hsl(var(--ring));
+
+  /* 业务状态色 */
+  --color-success: hsl(var(--success));
+  --color-success-foreground: hsl(var(--success-foreground));
+  --color-warning: hsl(var(--warning));
+  --color-warning-foreground: hsl(var(--warning-foreground));
+  --color-info: hsl(var(--info));
+  --color-info-foreground: hsl(var(--info-foreground));
+
+  /* 断点：≥1440 三栏并列；1366 历史收窄 */
+  --breakpoint-wide: 1440px;
+}
+
+:root {
+  /* 深色主题（HSL 通道值，不含 hsl() 包裹）。航图/摄像头深色面板基调。 */
+  --background: 222 47% 8%;
+  --foreground: 210 20% 96%;
+
+  --card: 222 40% 12%;
+  --card-foreground: 210 20% 96%;
+
+  --popover: 222 44% 10%;
+  --popover-foreground: 210 20% 96%;
+
+  --primary: 199 89% 55%;
+  --primary-foreground: 222 47% 8%;
+
+  --secondary: 222 30% 18%;
+  --secondary-foreground: 210 20% 96%;
+
+  --muted: 222 28% 16%;
+  --muted-foreground: 215 16% 65%;
+
+  --accent: 199 70% 22%;
+  --accent-foreground: 199 89% 80%;
+
+  --destructive: 0 72% 56%;
+  --destructive-foreground: 210 20% 98%;
+
+  --border: 222 28% 22%;
+  --input: 222 28% 20%;
+  --ring: 199 89% 55%;
+
+  /* 状态色：成功（航点绿）、警告（降级琥珀）、信息（蓝） */
+  --success: 152 62% 46%;
+  --success-foreground: 222 47% 8%;
+  --warning: 38 92% 55%;
+  --warning-foreground: 222 47% 8%;
+  --info: 199 89% 55%;
+  --info-foreground: 222 47% 8%;
+}
+
+/* 不实现亮色切换（PRD non-goal）；class=dark 为默认且唯一主题。 */
