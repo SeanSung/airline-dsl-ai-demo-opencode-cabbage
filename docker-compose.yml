@@ -1,0 +1,42 @@
+# 单机部署：Bun 后端 + Nginx 托管前端 SPA + SQLite 持久卷
+# 用法：
+#   1. cp .env.example .env 并填入 DEEPSEEK_API_KEY 等真实值
+#   2. docker compose up -d --build
+#   3. 浏览器打开 http://localhost
+#
+# 说明：下面只注入常用变量。HEIGHT_LIMIT_M / DEEPSEEK_BASE_URL / DEEPSEEK_MODEL
+# 使用代码内默认值；如需覆盖，直接在 environment 段添加对应行（确保非空）。
+
+services:
+  server:
+    build:
+      context: .
+      target: server
+    restart: unless-stopped
+    environment:
+      # 必填：缺失会导致后端启动失败
+      DEEPSEEK_API_KEY: ${DEEPSEEK_API_KEY:?必须在 .env 设置 DEEPSEEK_API_KEY}
+      PORT: "3000"
+      DB_PATH: /app/data/airline.db
+      GBH_BASE_URL: ${GBH_BASE_URL:-http://192.168.8.151:5175}
+      # 天地图 token，空则地图无瓦片
+      TIANDITU_TOKEN: ${TIANDITU_TOKEN:-}
+      LLM_FALLBACK_ENABLED: ${LLM_FALLBACK_ENABLED:-true}
+    volumes:
+      - airline-data:/app/data
+    expose:
+      - "3000"
+    # 不直接暴露端口，仅由 web 通过内网访问
+
+  web:
+    build:
+      context: .
+      target: web
+    restart: unless-stopped
+    depends_on:
+      - server
+    ports:
+      - "${WEB_PORT:-80}:80"
+
+volumes:
+  airline-data:
