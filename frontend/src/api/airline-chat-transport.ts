@@ -3,8 +3,7 @@ import type { AirlineDataTypes } from './agent-event-stream'
 import { sseResponseToChunkStream } from './agent-event-stream'
 
 /**
- * Callback to register routeId→conversationId mapping
- * (migrated from useChatStream's registerConversationRoute).
+  * Callback to register routeId→conversationId mapping.
  */
 export type RegisterRoute = (routeId: string, conversationId: string) => void
 

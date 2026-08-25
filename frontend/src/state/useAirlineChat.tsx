@@ -12,7 +12,7 @@ import type { AirlineDataTypes } from '../api/agent-event-stream'
 import { AirlineChatTransport } from '../api/airline-chat-transport'
 import type { RouteData } from './types'
 
-// Module-level route↔conversation mapping (migrated from useChatStream).
+// Module-level route↔conversation mapping.
 // Dynamic runtime insertion/deletion → Map is appropriate.
 const conversationByRoute = new Map<string, string>()
 
@@ -38,6 +38,8 @@ export function useAirlineChat(): AirlineChatApi {
   const [conversationId, setConversationId] = useState<string | null>(null)
   // Key forces useChat remount on newConversation
   const [chatKey, setChatKey] = useState(0)
+  // Route loaded via loadConversation (takes precedence over message-derived)
+  const [loadedRoute, setLoadedRoute] = useState<RouteData | null>(null)
 
   const ensureConversation = useCallback(
     async (signal?: AbortSignal): Promise<string> => {
@@ -60,6 +62,8 @@ export function useAirlineChat(): AirlineChatApi {
 
   const registerRoute = useCallback((routeId: string, cid: string) => {
     conversationByRoute.set(routeId, cid)
+    // New streaming route overrides any loadedRoute from history hydrate
+    setLoadedRoute(null)
   }, [])
 
   const transport = useMemo(
@@ -77,8 +81,8 @@ export function useAirlineChat(): AirlineChatApi {
     transport,
   })
 
-  // Derive route from last message with airline-route data part
-  const route = useMemo<RouteData | null>(() => {
+  // Derive route: loadedRoute (from loadConversation) takes precedence
+  const messageRoute = useMemo<RouteData | null>(() => {
     for (let i = chat.messages.length - 1; i >= 0; i--) {
       const msg = chat.messages[i]
       if (!msg.parts) continue
@@ -90,6 +94,7 @@ export function useAirlineChat(): AirlineChatApi {
     }
     return null
   }, [chat.messages])
+  const route = loadedRoute ?? messageRoute
 
   const errorBar = useMemo(
     () => (chat.error ? chat.error.message ?? 'Unknown error' : null),
@@ -106,6 +111,7 @@ export function useAirlineChat(): AirlineChatApi {
   const newConversation = useCallback(() => {
     cidRef.current = null
     setConversationId(null)
+    setLoadedRoute(null)
     setChatKey((k) => k + 1)
   }, [])
 
@@ -119,9 +125,11 @@ export function useAirlineChat(): AirlineChatApi {
       if (!routeRes.ok) throw new Error(`Failed to load route (${routeRes.status})`)
 
       const convData = (await convRes.json()) as { messages: unknown[] }
+      const routeData = (await routeRes.json()) as RouteData
 
       cidRef.current = id
       setConversationId(id)
+      setLoadedRoute(routeData)
       conversationByRoute.set(routeId, id)
 
       chat.setMessages(toUIMessages(convData.messages))

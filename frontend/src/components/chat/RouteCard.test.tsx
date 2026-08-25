@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { fireEvent, render, screen } from '@testing-library/react'
 import type { AirlineContent } from '@airline-dsl/shared'
-import type { RouteData } from '../../state/chatReducer'
+import type { RouteData } from '../../state/types'
 import { RouteCard } from './RouteCard'
 
 function makeContent(): AirlineContent {

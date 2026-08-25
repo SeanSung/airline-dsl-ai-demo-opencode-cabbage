@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from 'vitest'
 import { fireEvent, render, screen, waitFor } from '@testing-library/react'
-import type { RouteData } from '../../state/chatReducer'
+import type { RouteData } from '../../state/types'
 import { GbhPanel } from './GbhPanel'
 
 function makeRoute(routeId = 'r1'): RouteData {

@@ -1,8 +1,7 @@
 import { describe, expect, it, vi } from 'vitest'
 import { fireEvent, render, screen, waitFor } from '@testing-library/react'
 import type { AirlineContent } from '@airline-dsl/shared'
-import { ChatProvider, useChat } from '../../state/chatReducer'
-import { useChatStream, registerConversationRoute, conversationForRoute } from '../../api/useChatStream'
+import { AirlineChatProvider, useAirlineChatContext, conversationForRoute } from '../../state/useAirlineChat'
 import { HistoryPanel, type SubmitStatus, type RouteSummary } from './HistoryPanel'
 
 function makeContent(name: string): AirlineContent {
@@ -36,8 +35,7 @@ function makeSummary(overrides: Partial<RouteSummary> = {}): RouteSummary {
 const fakeResubmit = async (_routeId: string, _setStatus: (s: SubmitStatus) => void) => {}
 
 function Harness() {
-  const { state, dispatch } = useChat()
-  const { loadConversation } = useChatStream(dispatch)
+  const { messages, route, loadConversation } = useAirlineChatContext()
   const onResume = async (routeId: string, conversationId?: string) => {
     const cid = conversationId ?? conversationForRoute(routeId)
     if (cid) await loadConversation(cid, routeId)
@@ -45,8 +43,8 @@ function Harness() {
   return (
     <div>
       <HistoryPanel onResume={onResume} onResubmit={fakeResubmit} />
-      <span data-testid="msgs">{state.messages.map((m) => `${m.role}:${m.text}`).join('|')}</span>
-      <span data-testid="route">{state.route ? state.route.content.name : 'none'}</span>
+      <span data-testid="msgs">{messages.map((m) => `${m.role}:${m.parts?.filter((p) => p.type === 'text').map((p) => (p as { type: 'text'; text: string }).text).join('') ?? ''}`).join('|')}</span>
+      <span data-testid="route">{route ? route.content.name : 'none'}</span>
     </div>
   )
 }
@@ -54,9 +52,9 @@ function Harness() {
 function renderHarness(fetchImpl: (url: string) => Promise<Response>) {
   vi.stubGlobal('fetch', vi.fn(fetchImpl))
   return render(
-    <ChatProvider>
+    <AirlineChatProvider>
       <Harness />
-    </ChatProvider>,
+    </AirlineChatProvider>,
   )
 }
 
@@ -82,7 +80,7 @@ describe('HistoryPanel', () => {
     expect(screen.getAllByTestId('not-ai-badge').length).toBe(1)
   })
 
-  it('续编加载后 conversation 与 currentRoute 两 slice 同步回填，且可继续发送', async () => {
+  it('续编加载后 conversation 与 currentRoute 两 slice 同步回填', async () => {
     const fetchFn = vi.fn((url: string) => {
       if (url === '/api/routes') return Promise.resolve(new Response(JSON.stringify([makeSummary({ conversationId: 'c1' })]), { status: 200 }))
       if (url === '/api/conversations/c1') {
