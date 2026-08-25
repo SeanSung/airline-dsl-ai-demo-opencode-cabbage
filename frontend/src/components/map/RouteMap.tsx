@@ -3,7 +3,7 @@ import 'cesium/Build/Cesium/Widgets/widgets.css'
 import type * as CesiumModule from 'cesium'
 import type { Viewer } from 'cesium'
 import type { RouteData } from '../../state/chatReducer'
-import { buildCesiumEntities, type CesiumEntityDescription } from '../../lib/cesium-entities'
+import { buildCesiumEntities, type CesiumEntityDescription, GLOBE_BASE_COLOR } from '../../lib/cesium-entities'
 import { fetchMapToken } from '../../lib/map-token'
 import { MapOverlayCard } from '../layout/MapOverlayCard'
 
@@ -11,17 +11,66 @@ import { MapOverlayCard } from '../layout/MapOverlayCard'
 // vite-plugin-static-copy 把 node_modules/cesium/Build/Cesium/* 拷贝到 /cesium/。
 window.CESIUM_BASE_URL = '/cesium/'
 
+/** 检测当前环境是否可创建 WebGL 上下文（Cesium Viewer 依赖）。jsdom/SSR 无 WebGL，直接跳过。 */
+function hasWebGL(): boolean {
+  if (typeof document === 'undefined') return false
+  try {
+    const canvas = document.createElement('canvas')
+    return Boolean(
+      window.WebGLRenderingContext &&
+        (canvas.getContext('webgl') || canvas.getContext('experimental-webgl')),
+    )
+  } catch {
+    return false
+  }
+}
+
 export function RouteMap({ route }: { route: RouteData | null }) {
   const containerRef = useRef<HTMLDivElement | null>(null)
+  // 单实例 Viewer：仅 mount 时创建一次（空态即初始化地球基座），后续 route 变化只增删实体。
+  const viewerRef = useRef<Viewer | null>(null)
   const [badge, setBadge] = useState<string | null>(null)
   const [info, setInfo] = useState<string | null>(null)
 
+  // 初始化一次：开场即挂载 Cesium Viewer（空态地球基座），无航线时只是暗色椭球而非纯黑。
   useEffect(() => {
-    if (!route || !containerRef.current) {
+    if (!containerRef.current) return
+    if (!hasWebGL()) return // 测试/SSR 环境无 WebGL，跳过真实 Viewer 创建。
+    let cancelled = false
+
+    void (async () => {
+      const Cesium = await import('cesium')
+      if (cancelled || !containerRef.current || viewerRef.current) return
+      const viewer = new Cesium.Viewer(containerRef.current, {
+        baseLayer: false,
+        // 无天地图 token 时退化为暗色椭球（非纯黑），与空态验收 4.1 一致。
+        contextOptions: { webgl: { alpha: false } },
+      })
+      viewer.scene.globe.baseColor = Cesium.Color.fromCssColorString(GLOBE_BASE_COLOR)
+      viewerRef.current = viewer
+    })()
+
+    return () => {
+      cancelled = true
+      viewerRef.current?.destroy()
+      viewerRef.current = null
+    }
+  }, [])
+
+  // route 变化：仅在既有 Viewer 上增删实体，不重建 Viewer（P0 回归 4.1）。
+  useEffect(() => {
+    const viewer = viewerRef.current
+    if (!viewer || viewer.isDestroyed()) return
+
+    // 清空旧航线实体（保留 viewer 本身）。
+    viewer.entities.removeAll()
+
+    if (!route) {
       setBadge(null)
       setInfo(null)
       return
     }
+
     const entities = buildCesiumEntities(route.content, route.aiGenerated)
     const badgeEntity = entities.find((e) => e.kind === 'badge')
     const infoEntity = entities.find((e) => e.kind === 'info')
@@ -32,44 +81,8 @@ export function RouteMap({ route }: { route: RouteData | null }) {
         : null,
     )
     const geo = entities.filter((e) => e.kind === 'nest' || e.kind === 'waypoint' || e.kind === 'route')
-
-    let viewer: Viewer | null = null
-    let cancelled = false
-
-    void (async () => {
-      // Cesium 体积大且需在设置 window.CESIUM_BASE_URL 后才加载，故用动态 import。
-      const Cesium = await import('cesium')
-      if (cancelled || !containerRef.current) return
-      viewer = new Cesium.Viewer(containerRef.current, { baseLayer: false })
-      renderGeo(viewer, geo, Cesium)
-      try {
-        const token = await fetchMapToken()
-        if (!cancelled && viewer) {
-          viewer.imageryLayers.addImageryProvider(
-            new Cesium.WebMapTileServiceImageryProvider({
-              url: `https://t0.tianditu.gov.cn/img_w/wmts?tk=${token}`,
-              layer: 'img',
-              style: 'default',
-              tileMatrixSetID: 'w',
-              format: 'image/jpeg',
-            }),
-          )
-        }
-      } catch {
-        if (!cancelled && viewer) {
-          viewer.imageryLayers.addImageryProvider(
-            new Cesium.UrlTemplateImageryProvider({
-              url: 'https://services.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
-            }),
-          )
-        }
-      }
-    })()
-
-    return () => {
-      cancelled = true
-      if (viewer && !viewer.isDestroyed()) viewer.destroy()
-    }
+    renderGeo(viewer, geo, CesiumModule)
+    applyImagery(viewer)
   }, [route])
 
   return (
@@ -99,6 +112,28 @@ export function RouteMap({ route }: { route: RouteData | null }) {
       )}
     </div>
   )
+}
+
+/** 叠加天地图/ArcGIS 影像图层；失败静默回退到暗色椭球。 */
+function applyImagery(viewer: Viewer): void {
+  void (async () => {
+    try {
+      const Cesium = await import('cesium')
+      const token = await fetchMapToken()
+      if (viewer.isDestroyed()) return
+      viewer.imageryLayers.addImageryProvider(
+        new Cesium.WebMapTileServiceImageryProvider({
+          url: `https://t0.tianditu.gov.cn/img_w/wmts?tk=${token}`,
+          layer: 'img',
+          style: 'default',
+          tileMatrixSetID: 'w',
+          format: 'image/jpeg',
+        }),
+      )
+    } catch {
+      // 无 token / 网络失败：保留暗色椭球基底，不抛错中断地图渲染。
+    }
+  })()
 }
 
 function renderGeo(viewer: Viewer, entities: CesiumEntityDescription[], Cesium: typeof CesiumModule): void {

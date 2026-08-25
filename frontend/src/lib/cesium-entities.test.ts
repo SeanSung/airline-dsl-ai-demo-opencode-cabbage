@@ -54,13 +54,22 @@ describe('buildCesiumEntities', () => {
     }
   })
 
-  it('航线为 #38bdf8 且线宽 3px', () => {
+  it('航线为 #26b2f2（航向青）且线宽 3px', () => {
     const route = buildCesiumEntities(makeContent(), true).find((e) => e.kind === 'route')
     if (route?.kind === 'route') {
-      expect(route.color).toBe('#38bdf8')
+      expect(route.color).toBe('#26b2f2')
       expect(route.width).toBe(3)
     } else {
       throw new Error('缺少 route 实体')
+    }
+  })
+
+  it('机巢为 #2dbe7a（航点绿）', () => {
+    const nest = buildCesiumEntities(makeContent(), true).find((e) => e.kind === 'nest')
+    if (nest?.kind === 'nest') {
+      expect(nest.color).toBe('#2dbe7a')
+    } else {
+      throw new Error('缺少 nest 实体')
     }
   })
 

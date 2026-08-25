@@ -34,8 +34,12 @@ export function ChatPanel() {
       ? state.messages[state.messages.length - 1]
       : null
 
+  const hasError = Boolean(state.errorBar)
+  const errorBarId = 'chat-error-bar'
+
   return (
-    <section className="flex h-full min-h-0 flex-col bg-background text-foreground">
+    <section className="flex h-full min-h-0 flex-col bg-background text-foreground" aria-labelledby="chat-panel-heading">
+      <h2 id="chat-panel-heading" className="sr-only">对话</h2>
       {/* 消息列表区：可滚动 */}
       <div className="min-h-0 flex-1 overflow-y-auto p-3" data-testid="message-list">
         {state.messages.length === 0 && !state.streaming && (
@@ -115,6 +119,7 @@ export function ChatPanel() {
 
       {state.errorBar && (
         <div
+          id={errorBarId}
           data-testid="error-bar"
           role="alert"
           className="mx-3 mb-2 rounded-md border border-destructive/30 bg-destructive-solid/15 px-3 py-2 text-xs text-destructive"
@@ -134,10 +139,14 @@ export function ChatPanel() {
           value={draft}
           onChange={(e) => setDraft(e.target.value)}
           placeholder="输入需求…"
+          aria-label="输入航线需求"
+          aria-invalid={hasError}
+          aria-describedby={hasError ? errorBarId : undefined}
           className={cn(
             'h-9 flex-1 rounded-md border border-input bg-background px-3 text-sm text-foreground',
             'placeholder:text-muted-foreground',
             'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring',
+            'aria-[invalid=true]:border-destructive aria-[invalid=true]:ring-destructive',
           )}
         />
         <Button type="submit" disabled={state.streaming} aria-label="发送">

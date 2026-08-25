@@ -39,3 +39,21 @@
     height: 100%;
   }
 }
+
+/*
+ * 减弱动效（prefers-reduced-motion: reduce）：
+ * - 加载 spinner 停止旋转（保留 aria-busy / 状态文字，不抹掉反馈）；
+ * - Sheet 抽屉不做滑入位移（时长收敛到 ≤1ms，内容即时可见、层级不变）。
+ * 不得用全局 *{animation-duration:.01ms !important} 一刀切抹掉所有动画反馈。
+ */
+@media (prefers-reduced-motion: reduce) {
+  .animate-spin {
+    animation: none !important;
+  }
+
+  [data-state='open'],
+  [data-state='closed'] {
+    transition-duration: 1ms !important;
+    animation-duration: 1ms !important;
+  }
+}

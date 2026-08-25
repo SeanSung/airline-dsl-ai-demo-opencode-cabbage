@@ -6,6 +6,12 @@ export interface RoutePosition {
   height: number
 }
 
+/**
+ * Cesium 地球无影像时的基底色：对齐设计系统 bg-void（暗色椭球，非纯黑块）。
+ * 命令式 Cesium 颜色，绕过 Tailwind token；已在 DESIGN.md 登记 cesium 实体色。
+ */
+export const GLOBE_BASE_COLOR = '#0b111e'
+
 export type CesiumEntityDescription =
   | { id: string; kind: 'nest'; lng: number; lat: number; height: number; label: string; color: string }
   | { id: string; kind: 'waypoint'; index: number; lng: number; lat: number; height: number; speed: number; icons: string[] }
@@ -49,9 +55,9 @@ export function buildCesiumEntities(content: AirlineContent, aiGenerated: boolea
     icons: actionIcons(wp),
   }))
   return [
-    { id: 'nest', kind: 'nest', lng: takeoff.lng, lat: takeoff.lat, height: takeoff.altitude, label: '机巢', color: '#34d399' },
+    { id: 'nest', kind: 'nest', lng: takeoff.lng, lat: takeoff.lat, height: takeoff.altitude, label: '机巢', color: '#2dbe7a' },
     ...waypointEntities,
-    { id: 'route', kind: 'route', positions, color: '#38bdf8', width: 3 },
+    { id: 'route', kind: 'route', positions, color: '#26b2f2', width: 3 },
     { id: 'badge', kind: 'badge', text: aiGenerated ? 'AI 生成' : '非 AI 生成' },
     {
       id: 'info',

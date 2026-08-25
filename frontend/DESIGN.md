@@ -18,6 +18,9 @@ colors:
   warning-fallback: "#f6a823"
   danger-text: "#e56161"
   danger-solid: "#d32222"
+  # Cesium 3D 地图命令式实体（非 CSS，绕过 Tailwind token；对齐设计系统主色，仅在 cesium-entities.ts 使用）
+  cesium-nest: "#2dbe7a"
+  cesium-route: "#26b2f2"
 typography:
   body:
     fontFamily: "'Inter', 'PingFang SC', 'Microsoft YaHei', system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif"
