@@ -6,10 +6,13 @@ import { HistoryPanel, type SubmitStatus } from './components/history/HistoryPan
 import { AppShell } from './components/layout/AppShell'
 import { ChatProvider, useChat } from './state/chatReducer'
 import { useChatStream, conversationForRoute } from './api/useChatStream'
+import { AirlineChatProvider, useAirlineChatContext } from './state/useAirlineChat'
 
+/** Inner workspace: reads from both AirlineChatContext (layout) and ChatContext (chat panel). */
 function Workspace() {
   const { state, dispatch } = useChat()
-  const { loadConversation, newConversation } = useChatStream(dispatch)
+  const { loadConversation } = useChatStream(dispatch)
+  const { route } = useAirlineChatContext()
 
   const onResume = useCallback(
     async (routeId: string, conversationId?: string) => {
@@ -43,13 +46,12 @@ function Workspace() {
 
   return (
     <AppShell
-      onNewConversation={() => newConversation()}
       renderHistory={() => <HistoryPanel onResume={onResume} onResubmit={onResubmit} />}
       chat={<ChatPanel />}
       map={
         <>
-          <RouteMap route={state.route} />
-          <GbhPanel route={state.route} />
+          <RouteMap route={route ?? state.route} />
+          <GbhPanel route={route ?? state.route} />
         </>
       }
     />
@@ -58,8 +60,10 @@ function Workspace() {
 
 export default function App() {
   return (
-    <ChatProvider>
-      <Workspace />
-    </ChatProvider>
+    <AirlineChatProvider>
+      <ChatProvider>
+        <Workspace />
+      </ChatProvider>
+    </AirlineChatProvider>
   )
 }
