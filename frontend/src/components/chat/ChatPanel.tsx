@@ -1,10 +1,9 @@
-import { useState } from 'react'
-import { Loader2, Send } from 'lucide-react'
-import { useChatStream } from '../../api/useChatStream'
-import { useChat } from '../../state/chatReducer'
-import { Button } from '../ui/button'
+import { Loader2 } from 'lucide-react'
+import type { UIMessage } from 'ai'
+import { useAirlineChatContext } from '../../state/useAirlineChat'
 import { RouteCard } from './RouteCard'
-import { cn } from '../../lib/cn'
+import { Composer } from './Composer'
+import type { RouteData } from '../../state/types'
 
 const SUGGESTIONS = [
   '环绕沧海校区巡检一圈，高度 120 米',
@@ -13,147 +12,173 @@ const SUGGESTIONS = [
 ]
 
 /**
- * 航线编辑 Agent 对话栏：消息列表 + 航线卡片 + 错误条 + 输入区。
- * 无 props，内部通过 useChat/useChatStream 接线；header 与“新建会话”由 AppShell TopBar 接管。
+ * Chat panel: message list + error bar + Composer.
+ * Reads from AirlineChatContext; no props.
  */
 export function ChatPanel() {
-  const { state, dispatch } = useChat()
-  const { send } = useChatStream(dispatch)
-  const [draft, setDraft] = useState('')
+  const { messages, status, route, errorBar, send, stop } = useAirlineChatContext()
 
-  const submit = (text: string) => {
-    const value = text.trim()
-    if (!value || state.streaming) return
-    dispatch({ type: 'send', text: value })
-    setDraft('')
-    void send(value)
-  }
-
-  const lastAssistant =
-    state.messages.length > 0 && state.messages[state.messages.length - 1].role === 'assistant'
-      ? state.messages[state.messages.length - 1]
-      : null
-
-  const hasError = Boolean(state.errorBar)
-  const errorBarId = 'chat-error-bar'
+  const isStreaming = status === 'submitted' || status === 'streaming'
+  const isEmpty = messages.length === 0 && !isStreaming
 
   return (
-    <section className="flex h-full min-h-0 flex-col bg-background text-foreground" aria-labelledby="chat-panel-heading">
+    <section
+      className="flex h-full min-h-0 flex-col bg-background text-foreground"
+      aria-labelledby="chat-panel-heading"
+    >
       <h2 id="chat-panel-heading" className="sr-only">对话</h2>
-      {/* 消息列表区：可滚动 */}
+
+      {/* Messages area */}
       <div className="min-h-0 flex-1 overflow-y-auto p-3" data-testid="message-list">
-        {state.messages.length === 0 && !state.streaming && (
-          <div className="flex h-full flex-col justify-center gap-2" data-testid="suggestions">
-            <p className="mb-1 text-center text-xs text-muted-foreground">试试这样说</p>
-            {SUGGESTIONS.map((s) => (
-              <button
-                key={s}
-                type="button"
-                data-testid="suggestion"
-                onClick={() => submit(s)}
-                className="rounded-full border border-border bg-card px-4 py-2 text-left text-sm text-foreground transition-colors hover:border-primary/50 hover:bg-accent hover:text-accent-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-              >
-                {s}
-              </button>
-            ))}
+        {isEmpty && (
+          <div className="flex h-full flex-col justify-center gap-4" data-testid="composer-greeting">
+            <div className="text-center">
+              <p className="text-lg font-medium text-foreground">你好，今天规划条航线？</p>
+              <p className="mt-1 text-sm text-muted-foreground">
+                告诉我你想飞去哪里，我来帮你生成航线
+              </p>
+            </div>
+            <div className="flex flex-col items-center gap-2">
+              {SUGGESTIONS.map((s) => (
+                <button
+                  key={s}
+                  type="button"
+                  data-testid="suggestion"
+                  onClick={() => send(s)}
+                  className="w-full max-w-md rounded-full border border-border bg-card px-4 py-2 text-left text-sm text-foreground transition-colors hover:border-primary/50 hover:bg-accent hover:text-accent-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                >
+                  {s}
+                </button>
+              ))}
+            </div>
           </div>
         )}
 
         <div className="flex flex-col gap-3">
-          {state.messages.map((m) => {
-            if (m.role === 'user') {
-              return (
-                <div key={m.id} className="flex justify-end" data-testid="bubble-user">
-                  <div className="max-w-[85%] whitespace-pre-wrap rounded-2xl rounded-br-sm bg-primary px-3.5 py-2 text-sm text-primary-foreground shadow-sm">
-                    {m.text}
-                  </div>
-                </div>
-              )
-            }
-            if (m.role === 'error') {
-              return (
-                <div key={m.id} className="flex justify-start" data-testid="bubble-error">
-                  <div className="max-w-[85%] whitespace-pre-wrap rounded-2xl rounded-bl-sm border border-destructive/30 bg-destructive-solid/15 px-3.5 py-2 text-sm text-destructive">
-                    {m.text}
-                  </div>
-                </div>
-              )
-            }
-            return (
-              <div key={m.id} className="flex justify-start" data-testid="bubble-assistant">
-                <div className="max-w-[85%] whitespace-pre-wrap rounded-2xl rounded-bl-sm border border-border bg-card px-3.5 py-2 text-sm text-foreground shadow-sm">
-                  {m.clarifying.length > 0 && (
-                    <span
-                      data-testid="clarify-tag"
-                      className="mb-1 inline-flex items-center rounded-full bg-info/15 px-2 py-0.5 text-[11px] font-medium text-info"
-                    >
-                      待补充参数：{m.clarifying.join('、')}
-                    </span>
-                  )}
-                  <span>{m.text}</span>
-                  {state.streaming && lastAssistant?.id === m.id && (
-                    <Loader2
-                      data-testid="typing"
-                      className="ml-1 inline-block h-3.5 w-3.5 animate-spin align-middle text-muted-foreground"
-                      aria-label="正在生成"
-                    />
-                  )}
-                </div>
-              </div>
-            )
-          })}
-
-          {/* streaming 中但助手气泡尚未建立时的加载指示 */}
-          {state.streaming && !lastAssistant && (
-            <div className="flex justify-start" data-testid="bubble-assistant-pending">
-              <div className="inline-flex items-center gap-2 rounded-2xl rounded-bl-sm border border-border bg-card px-3.5 py-2 text-sm text-muted-foreground shadow-sm">
-                <Loader2 className="h-3.5 w-3.5 animate-spin" aria-hidden />
-                正在理解需求…
-              </div>
-            </div>
-          )}
+          {messages.map((m, i) => (
+            <MessageBubble
+              key={m.id}
+              message={m}
+              isLast={i === messages.length - 1}
+              isStreaming={isStreaming}
+              route={route}
+            />
+          ))}
         </div>
       </div>
 
-      {state.route && <RouteCard route={state.route} />}
+      {/* Route card */}
+      {route && <RouteCard route={route} />}
 
-      {state.errorBar && (
+      {/* Error bar */}
+      {errorBar && (
         <div
-          id={errorBarId}
           data-testid="error-bar"
           role="alert"
-          className="mx-3 mb-2 rounded-md border border-destructive/30 bg-destructive-solid/15 px-3 py-2 text-xs text-destructive"
+          className="mx-3 mb-2 flex items-center justify-between rounded-md border border-destructive/30 bg-destructive-solid/15 px-3 py-2 text-xs text-destructive"
         >
-          {state.errorBar}
+          <span>{errorBar}</span>
+          <button
+            type="button"
+            onClick={() => {
+              const lastUser = [...messages].reverse().find((m) => m.role === 'user')
+              if (lastUser) {
+                const text = lastUser.parts
+                  ?.filter((p): p is { type: 'text'; text: string } => p.type === 'text')
+                  .map((p) => p.text)
+                  .join('')
+                if (text) send(text)
+              }
+            }}
+            className="ml-2 shrink-0 underline hover:text-destructive/80"
+          >
+            重试
+          </button>
         </div>
       )}
 
-      <form
-        className="flex shrink-0 items-center gap-2 border-t border-border bg-card p-3"
-        onSubmit={(e) => {
-          e.preventDefault()
-          submit(draft)
-        }}
-      >
-        <input
-          value={draft}
-          onChange={(e) => setDraft(e.target.value)}
-          placeholder="输入需求…"
-          aria-label="输入航线需求"
-          aria-invalid={hasError}
-          aria-describedby={hasError ? errorBarId : undefined}
-          className={cn(
-            'h-9 flex-1 rounded-md border border-input bg-background px-3 text-sm text-foreground',
-            'placeholder:text-muted-foreground',
-            'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring',
-            'aria-[invalid=true]:border-destructive aria-[invalid=true]:ring-destructive',
-          )}
-        />
-        <Button type="submit" disabled={state.streaming} aria-label="发送">
-          <Send className="h-4 w-4" aria-hidden />
-          发送
-        </Button>
-      </form>
+      {/* Composer */}
+      <Composer status={status} onSend={send} onStop={stop} />
     </section>
   )
+}
+
+function MessageBubble({
+  message,
+  isLast,
+  isStreaming,
+  route,
+}: {
+  message: UIMessage
+  isLast: boolean
+  isStreaming: boolean
+  route: RouteData | null
+}) {
+  if (message.role === 'user') {
+    const text = extractText(message)
+    return (
+      <div className="flex justify-end" data-testid="bubble-user">
+        <div className="max-w-[85%] whitespace-pre-wrap rounded-2xl rounded-br-sm bg-primary px-3.5 py-2 text-sm text-primary-foreground shadow-sm">
+          {text}
+        </div>
+      </div>
+    )
+  }
+
+  if (message.role === 'assistant') {
+    const text = extractText(message)
+    const clarifying = extractClarifying(message)
+    const hasError = message.parts?.some((p) => p.type === 'error')
+
+    if (hasError) {
+      return (
+        <div className="flex justify-start" data-testid="bubble-error">
+          <div className="max-w-[85%] whitespace-pre-wrap rounded-2xl rounded-bl-sm border border-destructive/30 bg-destructive-solid/15 px-3.5 py-2 text-sm text-destructive">
+            {text || '发生错误'}
+          </div>
+        </div>
+      )
+    }
+
+    return (
+      <div className="flex justify-start" data-testid="bubble-assistant">
+        <div className="max-w-[85%] whitespace-pre-wrap rounded-2xl rounded-bl-sm border border-border bg-card px-3.5 py-2 text-sm text-foreground shadow-sm">
+          {clarifying.length > 0 && (
+            <span
+              data-testid="clarify-tag"
+              className="mb-1 inline-flex items-center rounded-full bg-info/15 px-2 py-0.5 text-[11px] font-medium text-info"
+            >
+              待补充参数：{clarifying.join('、')}
+            </span>
+          )}
+          <span>{text}</span>
+          {isStreaming && isLast && (
+            <Loader2
+              data-testid="typing"
+              className="ml-1 inline-block h-3.5 w-3.5 animate-spin align-middle text-muted-foreground"
+              aria-label="正在生成"
+            />
+          )}
+        </div>
+      </div>
+    )
+  }
+
+  return null
+}
+
+function extractText(message: UIMessage): string {
+  return (message.parts ?? [])
+    .filter((p): p is { type: 'text'; text: string } => p.type === 'text')
+    .map((p) => p.text)
+    .join('')
+}
+
+function extractClarifying(message: UIMessage): string[] {
+  for (const part of message.parts ?? []) {
+    if (part.type === 'data-airline-clarification') {
+      return (part as { type: 'data-airline-clarification'; data: { missing: string[] } }).data.missing
+    }
+  }
+  return []
 }

@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { ChevronRight, Route as RouteIcon } from 'lucide-react'
-import type { RouteData } from '../../state/chatReducer'
+import type { RouteData } from '../../state/types'
 import { cn } from '../../lib/cn'
 
 /**
