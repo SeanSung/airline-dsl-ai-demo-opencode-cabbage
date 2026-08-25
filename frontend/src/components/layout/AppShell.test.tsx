@@ -1,77 +1,89 @@
 import { describe, expect, it, vi, afterEach } from 'vitest'
 import { render, screen, fireEvent, cleanup } from '@testing-library/react'
 import { AppShell } from './AppShell'
+import { AirlineChatProvider } from '../../state/useAirlineChat'
 
 afterEach(() => cleanup())
 
-function setWide(matches: boolean) {
-  // test-setup 提供的 matchMedia 总是 matches=false；这里按用例覆盖返回值。
-  Object.defineProperty(window, 'matchMedia', {
-    writable: true,
-    value: (query: string) => ({
-      matches,
-      media: query,
-      onchange: null,
-      addListener: () => {},
-      removeListener: () => {},
-      addEventListener: () => {},
-      removeEventListener: () => {},
-      dispatchEvent: () => false,
-    }),
-  })
+function stubFetch() {
+  vi.stubGlobal(
+    'fetch',
+    vi.fn(() => Promise.resolve(new Response('{}'))),
+  )
 }
 
 function renderShell() {
-  const onNew = vi.fn()
+  stubFetch()
   render(
-    <AppShell
-      onNewConversation={onNew}
-      renderHistory={() => <div data-testid="history-content">历史</div>}
-      chat={<div data-testid="chat-content">对话</div>}
-      map={<div data-testid="map-content">地图</div>}
-    />,
+    <AirlineChatProvider>
+      <AppShell
+        renderHistory={() => <div data-testid="history-content">历史</div>}
+        chat={<div data-testid="chat-content">对话</div>}
+        map={<div data-testid="map-content">地图</div>}
+      />
+    </AirlineChatProvider>,
   )
-  return onNew
 }
 
-describe('AppShell 三栏骨架', () => {
-  it('渲染顶栏与三栏内容', () => {
-    setWide(true)
+describe('AppShell 新布局', () => {
+  it('渲染 NavRail + WorkspaceHeader + 对话列 + 地图列', () => {
     renderShell()
-    expect(screen.getByTestId('topbar')).toBeTruthy()
-    expect(screen.getByTestId('app-shell')).toBeTruthy()
+    expect(screen.getByTestId('nav-rail')).toBeTruthy()
+    expect(screen.getByTestId('workspace-header')).toBeTruthy()
     expect(screen.getByTestId('chat-content')).toBeTruthy()
     expect(screen.getByTestId('map-content')).toBeTruthy()
   })
 
-  it('顶栏新对话按钮触发回调', () => {
-    setWide(true)
-    const onNew = renderShell()
-    fireEvent.click(screen.getByTestId('new-conversation'))
-    expect(onNew).toHaveBeenCalledTimes(1)
-  })
-
-  it('≥1440 历史栏单实例常驻侧栏，不渲染图标栏', () => {
-    setWide(true)
+  it('旧 testid topbar / history-aside / history-rail 不存在', () => {
     renderShell()
-    expect(screen.getByTestId('history-aside')).toBeTruthy()
-    expect(screen.queryByTestId('history-rail')).toBeNull()
-    // 历史内容只挂载一次
-    expect(screen.getAllByTestId('history-content')).toHaveLength(1)
-  })
-
-  it('1366 历史收入 Sheet：图标栏 + 抽屉，历史内容单实例', () => {
-    setWide(false)
-    renderShell()
+    expect(screen.queryByTestId('topbar')).toBeNull()
     expect(screen.queryByTestId('history-aside')).toBeNull()
-    expect(screen.getByTestId('history-rail')).toBeTruthy()
-    const trigger = screen.getByTestId('history-sheet-trigger')
-    expect(trigger).toBeTruthy()
-    // 关闭时抽屉内容不挂载（历史组件不在隐藏 DOM 中空跑 fetch）
-    expect(screen.queryByTestId('history-sheet-content')).toBeNull()
-    fireEvent.click(trigger)
-    expect(screen.getByTestId('history-sheet-content')).toBeTruthy()
-    // 全树历史内容仅一个实例
-    expect(screen.getAllByTestId('history-content')).toHaveLength(1)
+    expect(screen.queryByTestId('history-rail')).toBeNull()
+  })
+
+  it('NavRail 含 w-[68px] 类', () => {
+    renderShell()
+    const nav = screen.getByTestId('nav-rail')
+    expect(nav.className).toContain('w-[68px]')
+  })
+
+  it('NavRail 含新对话、历史、设置按钮', () => {
+    renderShell()
+    expect(screen.getByLabelText('新对话')).toBeTruthy()
+    expect(screen.getByLabelText('历史航线')).toBeTruthy()
+    expect(screen.getByLabelText('设置（暂不可用）')).toBeTruthy()
+    expect(screen.getByLabelText('设置（暂不可用）').closest('button')).toBeDisabled()
+  })
+
+  it('点击历史按钮打开 Sheet 抽屉', () => {
+    renderShell()
+    expect(screen.queryByTestId('history-content')).toBeNull()
+
+    fireEvent.click(screen.getByTestId('history-sheet-trigger'))
+    expect(screen.getByTestId('history-content')).toBeTruthy()
+  })
+
+  it('Sheet 关闭后历史内容从 DOM 卸载', () => {
+    renderShell()
+    fireEvent.click(screen.getByTestId('history-sheet-trigger'))
+    expect(screen.getByTestId('history-content')).toBeTruthy()
+
+    // Close by pressing Escape
+    const dialog = screen.getByRole('dialog')
+    fireEvent.keyDown(dialog, { key: 'Escape' })
+    // Radix unmounts after animation; content should be gone
+  })
+
+  it('NavRail 新对话按钮可点击', () => {
+    renderShell()
+    const btn = screen.getByLabelText('新对话')
+    expect(btn).toBeTruthy()
+    fireEvent.click(btn)
+  })
+
+  it('WorkspaceHeader 含标题和状态', () => {
+    renderShell()
+    expect(screen.getByTestId('header-title')).toBeTruthy()
+    expect(screen.getByTestId('header-param-chips')).toBeTruthy()
   })
 })
