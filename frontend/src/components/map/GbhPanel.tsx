@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { CheckCircle2, Loader2, Plane, Send } from 'lucide-react'
-import type { RouteData } from '../../state/chatReducer'
+import type { RouteData } from '../../state/types'
 import { Button } from '../ui/button'
 import { MapOverlayCard } from '../layout/MapOverlayCard'
 import { formatGbhError } from '../../lib/format-gbh-error'
