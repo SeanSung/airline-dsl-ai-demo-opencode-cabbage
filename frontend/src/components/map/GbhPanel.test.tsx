@@ -101,4 +101,16 @@ describe('GbhPanel', () => {
     expect(screen.getByTestId('gbh-submit')).toHaveTextContent('一键提交 GBH')
     vi.unstubAllGlobals()
   })
+
+  it('GBH 浮卡固定在地图右下角且宽度受控，不撑破地图列', () => {
+    render(<GbhPanel route={makeRoute()} />)
+    const bar = screen.getByTestId('gbh-bar')
+    // 绝对定位浮于地图右下角，宽度受 max-w 约束 → 始终可见且不溢出地图列
+    expect(bar.className).toContain('absolute')
+    expect(bar.className).toContain('bottom-3')
+    expect(bar.className).toContain('right-3')
+    expect(bar.className).toContain('max-w-[calc(100%-1.5rem)]')
+    // 提交按钮在浮卡内始终渲染（GBH 按钮始终可见）
+    expect(screen.getByTestId('gbh-submit')).toBeInTheDocument()
+  })
 })

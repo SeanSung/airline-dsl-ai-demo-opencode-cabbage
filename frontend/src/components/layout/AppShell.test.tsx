@@ -86,4 +86,26 @@ describe('AppShell 新布局', () => {
     expect(screen.getByTestId('header-title')).toBeTruthy()
     expect(screen.getByTestId('header-param-chips')).toBeTruthy()
   })
+
+  it('栅格在 1366/1920 不横向溢出：fr + min-w-0 收缩，导航固定 68px', () => {
+    renderShell()
+    const grid = screen.getByTestId('chat-content').parentElement!.parentElement!
+    // grid 容器本身使用 fr 列与 min-w-0 防止子列撑破视口
+    expect(grid.className).toContain('grid-cols-[minmax(380px,420px)_1fr]')
+    expect(grid.className).toContain('2xl:grid-cols-[420px_1fr]')
+    // 两个工作列均带 min-w-0，避免内容把 grid 撑出横向滚动
+    const cols = grid.querySelectorAll('[data-testid="chat-column"],[data-testid="map-column"]')
+    cols.forEach((col) => expect(col.className).toContain('min-w-0'))
+    // 导航栏固定宽度 68px（∈ [64,72]），shrink-0 不被压缩
+    const nav = screen.getByTestId('nav-rail')
+    expect(nav.className).toContain('w-[68px]')
+    expect(nav.className).toContain('shrink-0')
+  })
+
+  it('顶栏参数区 flex-1 overflow-hidden，长参数不挤压标题', () => {
+    renderShell()
+    const chips = screen.getByTestId('header-param-chips')
+    expect(chips.className).toContain('flex-1')
+    expect(chips.className).toContain('overflow-hidden')
+  })
 })
