@@ -177,4 +177,14 @@ describe('ChatPanel', () => {
     expect(screen.getByLabelText('输入航线需求')).toBeTruthy()
     expect(screen.getByLabelText('附件（暂不可用）')).toBeDisabled()
   })
+
+  it('composer 位于可滚动消息列表之外，长对话时始终贴底', () => {
+    renderPanel()
+    const messageList = screen.getByTestId('message-list')
+    const composer = screen.getByLabelText('输入航线需求').closest('form')!
+    // composer 不能是 message-list 滚动容器的后代，否则长消息时会随内容滚走
+    expect(messageList.contains(composer)).toBe(false)
+    // composer 与 message-list 同属 ChatPanel 的 flex 列，作为底部固定兄弟节点
+    expect(composer.className).toContain('mb-3')
+  })
 })
