@@ -39,7 +39,7 @@ const app = createApp({
   tiandituToken: config.tiandituToken,
 })
 
-const port = Number(process.env.PORT ?? 3000)
+const port = Number(process.env.PORT ?? 7002)
 Bun.serve({
   port,
   fetch: (req) => app.fetch(req),
