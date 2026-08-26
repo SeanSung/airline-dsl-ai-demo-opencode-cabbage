@@ -1,6 +1,6 @@
 ---
 name: structured-decisions
-description: "主持结构化决策——框定问题、挑战前提、生成 2-3 个真正不同的选项、冷水检验与压力测试、给出带理由的 A/B/C 推荐，并把持久术语/决策沉淀到 CONTEXT.md 或 ADR。当用户要选型、排序、做取舍、压力测试想法、决定方向，或在 specs、计划、scaffold、commit、PR、代码变更之前需要决策总结时使用。本技能负责收敛与决策；要大量发散生成想法时交给 creative-ideation。"
+description: "主持结构化决策——框定问题、挑战前提、生成 2-3 个真正不同的选项、冷水检验与压力测试、给出带理由的 A/B/C 推荐。当用户要选型、排序、做取舍、压力测试想法、决定方向，或在 specs、计划、scaffold、commit、PR、代码变更之前需要决策总结时使用。本技能负责收敛与决策；要大量发散生成想法时交给 creative-ideation；决策沉淀出的持久术语/架构决策交给 domain-modeling 写入 CONTEXT.md 或 ADR。"
 ---
 
 # 结构化决策（Structured Decisions）
@@ -22,9 +22,9 @@ description: "主持结构化决策——框定问题、挑战前提、生成 2-
 只加载当前回合所需的参考：
 
 - `references/decision-method.md`——详细工作流、对抗性澄清、姿态路由、外部校准、问题库、技术视角、终局输出形态。
-- `references/project-context-docs.md`——本地项目术语表/ADR 持久化。当存在项目上下文文档，或讨论可能沉淀为持久项目语言时，在首次实质性回答前阅读。
 - `references/recommendation-reliability.md`——在做出影响难以逆转选择的非平凡推荐前必读。
 - `references/user-choice-output-protocol.md`——在进行阻塞式结构化选择前必读。
+- 持久化委托 `domain-modeling` skill——当决策沉淀出持久术语、领域边界、关系或值得记 ADR 的架构决策时调用它写入 `CONTEXT.md` / `docs/adr/`，本技能不自管持久化格式。
 
 ## 核心工作流
 
@@ -39,9 +39,9 @@ description: "主持结构化决策——框定问题、挑战前提、生成 2-
 
 ## 持久化
 
-持久知识只通过项目上下文文档留存。不要创建单独的会话日志、隐藏的本地持久化目录、检查点文件、恢复缓存或引文日志。
+本技能不直接写 `CONTEXT.md` 或 ADR——持久化是 `domain-modeling` 的职责。当一次决策沉淀出持久术语、领域边界、跨 context 关系，或满足 ADR 三条件（难以逆转、没有上下文会令人惊讶、真实权衡）的架构决策时，调用 `domain-modeling` 按其格式写入。
 
-当本地项目头脑风暴沉淀出一个持久术语、边界、关系或值得记 ADR 的决策时，遵循 `references/project-context-docs.md`。
+不要创建单独的会话日志、隐藏的本地持久化目录、检查点文件、恢复缓存或引文日志。
 
 ## 选择
 
@@ -49,6 +49,6 @@ description: "主持结构化决策——框定问题、挑战前提、生成 2-
 
 ## 边界
 
-本技能可以讨论想法、目标、约束、成功标准、选项、权衡、粗略概念、大纲、文本图表、决策表和总结。仅在为对话提供依据时可以查阅现有文件或文档。可以按照 `references/project-context-docs.md` 更新窄范围的项目上下文文档。
+本技能可以讨论想法、目标、约束、成功标准、选项、权衡、粗略概念、大纲、文本图表、决策表和总结。仅在为对话提供依据时可以查阅现有文件或文档。需要把决策持久化到 `CONTEXT.md` 或 ADR 时，委托 `domain-modeling`。
 
 本技能不得创建 specs、实现计划、scaffold、commit、PR、路线图、开发服务器、依赖安装、大范围测试运行或代码变更。不得调用实现、规划、设计产出、写计划或发布工作流。如果用户要求进入规划或实现，停止使用本技能，将其作为独立请求处理。
