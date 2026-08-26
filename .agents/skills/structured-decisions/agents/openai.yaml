@@ -1,0 +1,4 @@
+interface:
+  display_name: "结构化决策"
+  short_description: "用结构化选项探索并决策方向"
+  default_prompt: "用 $structured-decisions 对这个想法做压力测试，帮我选一个方向。"
