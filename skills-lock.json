@@ -25,6 +25,12 @@
       "skillPath": "skills/engineering/codebase-design/SKILL.md",
       "computedHash": "f49158a76478630296ba2b43df773db097520310979e9161ec39614fe8e0677c"
     },
+    "concise-output": {
+      "source": "jagreehal/jagreehal-claude-skills",
+      "sourceType": "github",
+      "skillPath": "skills/concise-output/SKILL.md",
+      "computedHash": "d79c9324c714504f4e892b50284c76199ff34f5a8e7a944b94a400d8725b3d1c"
+    },
     "diagnosing-bugs": {
       "source": "vinvcn/mattpocock-skills-zh-CN",
       "sourceType": "github",
